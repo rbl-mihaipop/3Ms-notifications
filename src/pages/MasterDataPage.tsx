@@ -185,6 +185,8 @@ export const MasterDataPage = () => {
                   key={building.id}
                   hover
                   ref={isHighlighted ? highlightRef : null}
+                  data-testid={`building-row-${building.id}`}
+                  data-highlighted={isHighlighted ? 'true' : 'false'}
                   sx={{
                     bgcolor: isHighlighted ? 'rgba(128, 51, 128, 0.08)' : 'inherit',
                     outline: isHighlighted ? `2px solid ${BRAND_PURPLE}` : 'none',

@@ -111,6 +111,8 @@ export const NotificationCard = ({ notification, onCtaClick }: Props) => {
       }}
     >
       <Box
+        data-testid="notification-unread-dot"
+        data-unread={isUnread ? 'true' : 'false'}
         sx={{
           width: 7,
           height: 7,
@@ -222,6 +224,7 @@ export const NotificationCard = ({ notification, onCtaClick }: Props) => {
       {/* Kebab menu button */}
       <IconButton
         size="small"
+        data-testid="notification-kebab"
         onClick={handleMenuOpen}
         sx={{ color: TEXT_SECONDARY, p: 0.5, mt: 0.1, flexShrink: 0 }}
       >
