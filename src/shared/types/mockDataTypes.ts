@@ -75,6 +75,12 @@ export type NotificationSubtype =
   | "report_ready"
   | "object_assigned";
 
+export interface ValueChange {
+  label: string;
+  from: string;
+  to: string;
+}
+
 export type NotificationStatusBadge = "new" | "in_progress" | "resolved";
 
 export interface Notification {
@@ -93,6 +99,7 @@ export interface Notification {
   pinned?: boolean;
   expectedCloseDate?: string; // YYYY-MM-DD
   clearCondition?: string;
+  valueChange?: ValueChange;
   createdAt: string; // ISO 8601
   status: NotificationStatus;
   priority: NotificationPriority;

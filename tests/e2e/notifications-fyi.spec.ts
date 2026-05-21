@@ -10,31 +10,31 @@ test.describe('Updates (FYI) tab', () => {
     await expect(page.getByTestId('notification-card')).toHaveCount(4);
   });
 
-  test('shows NEWLY ASSIGNED subtype chip for object assignments', async ({ page }) => {
-    // ntf-005, ntf-006, ntf-010 → subtype object_assigned → label 'NEWLY ASSIGNED'
-    await expect(page.getByTestId('notification-subtype').first()).toHaveText('NEWLY ASSIGNED');
+  test('shows Object assigned subtype chip for object assignments', async ({ page }) => {
+    await expect(page.getByTestId('notification-subtype').first()).toHaveText('Object assigned');
   });
 
-  test('shows PARAMETER CHANGE subtype chip', async ({ page }) => {
-    // ntf-011 → subtype parameter_change → last card in the list
-    await expect(page.getByTestId('notification-subtype').last()).toHaveText('PARAMETER CHANGE');
+  test('shows Parameter change subtype chip', async ({ page }) => {
+    await expect(page.getByTestId('notification-subtype').last()).toHaveText('Parameter change');
   });
 
-  test('shows assigned building names', async ({ page }) => {
-    await expect(page.getByText('Iași Logistics Hub').first()).toBeVisible();
-    await expect(page.getByText('Constanța Retail Gallery').first()).toBeVisible();
-    await expect(page.getByText('Greenfield Industrial – Sector 4B').first()).toBeVisible();
+  test('shows design notification titles', async ({ page }) => {
+    await expect(page.getByText(/willow creek apartments/i)).toBeVisible();
+    await expect(page.getByText(/riverbend tower/i)).toBeVisible();
+    await expect(page.getByText(/cedar heights/i)).toBeVisible();
+    await expect(page.getByText(/cpi benchmark/i)).toBeVisible();
   });
 
-  test('shows parameter change notification title', async ({ page }) => {
-    await expect(page.getByText(/cap rate assumption updated/i)).toBeVisible();
+  test('shows value-change visual for parameter change cards', async ({ page }) => {
+    await expect(page.getByText('5.80%')).toBeVisible();
+    await expect(page.getByText('6.10%')).toBeVisible();
   });
 
-  test('"Go to object" CTA is present on each card', async ({ page }) => {
+  test('CTA links are present on each card', async ({ page }) => {
     const ctas = page.getByTestId('notification-cta');
     const count = await ctas.count();
     for (let i = 0; i < count; i++) {
-      await expect(ctas.nth(i)).toContainText(/go to object/i);
+      await expect(ctas.nth(i)).toContainText(/view/i);
     }
   });
 
@@ -45,13 +45,11 @@ test.describe('Updates (FYI) tab', () => {
   });
 
   test('TODAY date group is visible', async ({ page }) => {
-    // ntf-005 created 2026-05-21
     await expect(page.getByText(/today/i).first()).toBeVisible();
   });
 
   test('YESTERDAY date group is visible', async ({ page }) => {
-    // ntf-006 created 2026-05-20
-    await expect(page.getByText('YESTERDAY')).toBeVisible();
+    await expect(page.getByText(/yesterday/i).first()).toBeVisible();
   });
 
   test('no amber warning banner on Updates tab', async ({ page }) => {

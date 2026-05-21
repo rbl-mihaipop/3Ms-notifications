@@ -8,7 +8,7 @@ test.describe('New Reports — View Report modal', () => {
 
   test('New Reports tab shows REPORT READY notifications', async ({ page }) => {
     const subtypeLabels = page.getByTestId('notification-subtype');
-    await expect(subtypeLabels.first()).toHaveText('REPORT READY');
+    await expect(subtypeLabels.first()).toHaveText('Report ready');
     await expect(page.getByTestId('notification-card')).toHaveCount(3);
   });
 
