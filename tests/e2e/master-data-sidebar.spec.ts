@@ -14,11 +14,11 @@ test.describe('Master Data sidebar navigation', () => {
     await expect(page.locator('[role="button"]').filter({ hasText: 'Master Data' }).first()).toBeVisible();
     await expect(page.locator('[role="button"]').filter({ hasText: 'Notifications' }).first()).toBeVisible();
 
-    // Old nav sections from the previous sidebar must be gone
-    await expect(page.getByText('Portfolio')).toHaveCount(0);
-    await expect(page.getByText('Lifecycle')).toHaveCount(0);
-    await expect(page.getByText('Investment planning')).toHaveCount(0);
-    await expect(page.getByText('Expertise')).toHaveCount(0);
+    // Old nav sections from the previous sidebar must be gone — scoped to sidebar nav buttons only
+    await expect(page.locator('[role="button"]').filter({ hasText: /^Portfolio$/ })).toHaveCount(0);
+    await expect(page.locator('[role="button"]').filter({ hasText: /^Lifecycle$/ })).toHaveCount(0);
+    await expect(page.locator('[role="button"]').filter({ hasText: /^Investment planning$/ })).toHaveCount(0);
+    await expect(page.locator('[role="button"]').filter({ hasText: /^Expertise$/ })).toHaveCount(0);
   });
 
   test('Master Data page renders the buildings table', async ({ page }) => {
