@@ -5,7 +5,11 @@ export default defineConfig({
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
   retries: 0,
-  reporter: [['list'], ['allure-playwright', { resultsDir: 'allure-results' }]],
+  reporter: [
+    ['list'],
+    ['allure-playwright', { resultsDir: 'allure-results' }],
+    ['json', { outputFile: 'test-results/results.json' }],
+  ],
   use: {
     baseURL: 'http://localhost:5173',
     trace: 'on-first-retry',

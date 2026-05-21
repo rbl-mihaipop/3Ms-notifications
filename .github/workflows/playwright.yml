@@ -28,7 +28,9 @@ jobs:
         run: npx playwright install --with-deps chromium
 
       - name: Run Playwright tests
+        id: tests
         run: npm run test:e2e
+        continue-on-error: true
 
       - name: Load Allure history from gh-pages
         uses: actions/checkout@v4
@@ -52,24 +54,151 @@ jobs:
           path: allure-report
           retention-days: 30
 
-      - name: Post report link as PR comment
+      - name: Compute test summary from results.json
+        id: summary
+        if: always()
         uses: actions/github-script@v7
-        if: always() && github.event_name == 'pull_request'
         with:
           script: |
+            const fs = require('fs');
+            const path = 'test-results/results.json';
+            if (!fs.existsSync(path)) {
+              core.setOutput('passed', '0');
+              core.setOutput('failed', '0');
+              core.setOutput('flaky', '0');
+              core.setOutput('skipped', '0');
+              core.setOutput('total', '0');
+              core.setOutput('duration', '0');
+              core.setOutput('failures_md', '_No test results file produced — the test step likely failed before any tests ran._');
+              return;
+            }
+            const report = JSON.parse(fs.readFileSync(path, 'utf8'));
+            let passed = 0, failed = 0, flaky = 0, skipped = 0, duration = 0;
+            const failures = [];
+            const walk = (suite, fileHint) => {
+              const file = suite.file || fileHint;
+              for (const spec of suite.specs || []) {
+                for (const t of spec.tests || []) {
+                  const results = t.results || [];
+                  const finalStatus = results[results.length - 1]?.status;
+                  const wasFlaky = results.length > 1 && results.some(r => r.status === 'failed') && finalStatus === 'passed';
+                  for (const r of results) duration += r.duration || 0;
+                  if (spec.ok === false) {
+                    failed++;
+                    const err = results.find(r => r.status === 'failed')?.error?.message || 'failed';
+                    failures.push({ title: spec.title, file, err: err.split('\n')[0].slice(0, 200) });
+                  } else if (wasFlaky) {
+                    flaky++;
+                  } else if (finalStatus === 'skipped' || t.status === 'skipped') {
+                    skipped++;
+                  } else if (finalStatus === 'passed' || t.status === 'expected') {
+                    passed++;
+                  }
+                }
+              }
+              for (const child of suite.suites || []) walk(child, file);
+            };
+            for (const top of report.suites || []) walk(top, top.file);
+            const total = passed + failed + flaky + skipped;
+            const durationSec = (duration / 1000).toFixed(1);
+            const failuresMd = failures.length === 0
+              ? ''
+              : '\n\n**Failures:**\n' + failures.slice(0, 10).map(f => `- \`${f.file ? f.file.split(/[\\/]/).pop() : '?'}\` — _${f.title}_\n  > ${f.err}`).join('\n') + (failures.length > 10 ? `\n_…and ${failures.length - 10} more_` : '');
+            core.setOutput('passed', String(passed));
+            core.setOutput('failed', String(failed));
+            core.setOutput('flaky', String(flaky));
+            core.setOutput('skipped', String(skipped));
+            core.setOutput('total', String(total));
+            core.setOutput('duration', durationSec);
+            core.setOutput('failures_md', failuresMd);
+
+      - name: Write GitHub job summary
+        if: always()
+        run: |
+          PASSED=${{ steps.summary.outputs.passed }}
+          FAILED=${{ steps.summary.outputs.failed }}
+          FLAKY=${{ steps.summary.outputs.flaky }}
+          SKIPPED=${{ steps.summary.outputs.skipped }}
+          TOTAL=${{ steps.summary.outputs.total }}
+          DURATION=${{ steps.summary.outputs.duration }}
+          ICON="✅"
+          if [ "$FAILED" != "0" ]; then ICON="❌"; fi
+          {
+            echo "# ${ICON} Playwright Test Report"
+            echo ""
+            echo "| Passed | Failed | Flaky | Skipped | Total | Duration |"
+            echo "|--------|--------|-------|---------|-------|----------|"
+            echo "| ${PASSED} | ${FAILED} | ${FLAKY} | ${SKIPPED} | ${TOTAL} | ${DURATION}s |"
+            echo ""
+            echo "📥 [Allure report artifact](${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}#artifacts)"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Post sticky PR comment
+        if: always() && github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        env:
+          PASSED: ${{ steps.summary.outputs.passed }}
+          FAILED: ${{ steps.summary.outputs.failed }}
+          FLAKY: ${{ steps.summary.outputs.flaky }}
+          SKIPPED: ${{ steps.summary.outputs.skipped }}
+          TOTAL: ${{ steps.summary.outputs.total }}
+          DURATION: ${{ steps.summary.outputs.duration }}
+          FAILURES_MD: ${{ steps.summary.outputs.failures_md }}
+        with:
+          script: |
+            const MARKER = '<!-- playwright-report-sticky -->';
+            const { PASSED, FAILED, FLAKY, SKIPPED, TOTAL, DURATION, FAILURES_MD } = process.env;
             const runUrl = `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`;
             const artifactUrl = `${runUrl}#artifacts`;
-            const passed = '${{ job.status }}' === 'success';
-            const icon = passed ? '✅' : '❌';
-            const body = `### ${icon} Playwright Test Report — run [#${{ github.run_number }}](${runUrl})\n\n` +
-              `**Status:** ${passed ? 'All tests passed' : 'Some tests failed'}\n\n` +
-              `📥 [Download Allure report](${artifactUrl})`;
-            await github.rest.issues.createComment({
+            const icon = FAILED === '0' ? '✅' : '❌';
+            const status = FAILED === '0'
+              ? `All ${PASSED}/${TOTAL} tests passed`
+              : `${FAILED} of ${TOTAL} test(s) failed`;
+
+            const body = [
+              MARKER,
+              `### ${icon} Playwright Test Report — run [#${context.runNumber}](${runUrl})`,
+              '',
+              `**${status}** in ${DURATION}s`,
+              '',
+              '| Passed | Failed | Flaky | Skipped | Total |',
+              '|--------|--------|-------|---------|-------|',
+              `| ${PASSED} | ${FAILED} | ${FLAKY} | ${SKIPPED} | ${TOTAL} |`,
+              '',
+              `📥 [Download Allure report](${artifactUrl})`,
+              FAILURES_MD || '',
+              '',
+              `<sub>Commit \`${context.sha.slice(0, 7)}\` · _comment updates on every push_</sub>`,
+            ].join('\n');
+
+            const { data: comments } = await github.rest.issues.listComments({
               owner: context.repo.owner,
               repo: context.repo.repo,
               issue_number: context.issue.number,
-              body,
+              per_page: 100,
             });
+            const existing = comments.find(c => c.body && c.body.startsWith(MARKER));
+            if (existing) {
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: existing.id,
+                body,
+              });
+            } else {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                body,
+              });
+            }
+
+      - name: Fail job if any tests failed
+        if: always() && steps.summary.outputs.failed != '0'
+        run: |
+          echo "❌ ${{ steps.summary.outputs.failed }} test(s) failed"
+          exit 1
 
       - name: Publish report to GitHub Pages
         uses: peaceiris/actions-gh-pages@v4
