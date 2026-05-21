@@ -90,6 +90,9 @@ export interface Notification {
   relatedEntityId: string;
   relatedEntityName: string;
   note?: string;
+  pinned?: boolean;
+  expectedCloseDate?: string; // YYYY-MM-DD
+  clearCondition?: string;
   createdAt: string; // ISO 8601
   status: NotificationStatus;
   priority: NotificationPriority;

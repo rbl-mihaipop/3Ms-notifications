@@ -40,7 +40,7 @@ export const CATEGORY_COLORS = {
 export const CATEGORY_LABELS = {
   action_required: 'Action Required',
   new_reports: 'New Reports',
-  fyi: 'FYI',
+  fyi: 'Updates',
 } as const;
 
 export const SUBTYPE_LABELS = {
