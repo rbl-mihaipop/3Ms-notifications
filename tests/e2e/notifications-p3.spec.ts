@@ -18,7 +18,7 @@ test.describe('Priority 3 — Expired Project Notifications', () => {
   test('Action Required tab shows overdue project notifications', async ({ page }) => {
     await page.getByRole('tab', { name: /action required/i }).click();
     const subtypeLabels = page.getByTestId('notification-subtype');
-    await expect(subtypeLabels.first()).toHaveText('PAST CLOSING DATE');
+    await expect(subtypeLabels.first()).toHaveText('Past closing date');
     const cards = page.getByTestId('notification-card');
     await expect(cards).toHaveCount(3);
   });
