@@ -1,4 +1,8 @@
 node_modules/
+.claude/settings.local.json
 test-results/
 playwright-report/
+allure-results/
+allure-report/
+allure-history/
 dist/
