@@ -66,13 +66,30 @@ export type NotificationStatus = "unread" | "read";
 
 export type NotificationPriority = "low" | "medium" | "high";
 
+export type NotificationCategory = "action_required" | "new_reports" | "fyi";
+
+export type NotificationSubtype =
+  | "past_closing_date"
+  | "phase_transition"
+  | "parameter_change"
+  | "report_ready"
+  | "object_assigned";
+
+export type NotificationStatusBadge = "new" | "in_progress" | "resolved";
+
 export interface Notification {
   id: string;
   type: NotificationType;
+  category: NotificationCategory;
+  subtype: NotificationSubtype;
+  statusBadge: NotificationStatusBadge;
   title: string;
   description: string;
+  entityName: string;
+  entityId: string;
   relatedEntityId: string;
   relatedEntityName: string;
+  note?: string;
   createdAt: string; // ISO 8601
   status: NotificationStatus;
   priority: NotificationPriority;
