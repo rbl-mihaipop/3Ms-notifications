@@ -127,6 +127,7 @@ export const ReportDetailModal = ({ reportId, onClose }: Props) => {
   return (
     <>
       <Dialog open={!!reportId} onClose={handleClose} maxWidth="sm" fullWidth>
+        <Box data-testid="report-detail-dialog">
         <DialogTitle sx={{ pr: 6 }}>
           <Typography fontWeight={600} fontSize={16}>
             {report.title}
@@ -219,6 +220,7 @@ export const ReportDetailModal = ({ reportId, onClose }: Props) => {
             Download {report.format}
           </Button>
         </DialogActions>
+        </Box>
       </Dialog>
     </>
   );
