@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import {
   Box,
   Typography,
@@ -91,7 +91,10 @@ export const NotificationsPage = () => {
   const counts = useAppSelector(selectTabCounts);
   const unreadCount = useAppSelector(selectUnreadCount);
   const allNotifications = useAppSelector(selectAllNotifications);
-  const newReportsItems = allNotifications.filter((n) => n.category === 'new_reports');
+  const newReportsItems = useMemo(
+    () => allNotifications.filter((n) => n.category === 'new_reports'),
+    [allNotifications],
+  );
   const [modalReportId, setModalReportId] = useState<string | null>(null);
   const [reportsDrawerOpen, setReportsDrawerOpen] = useState(false);
 
