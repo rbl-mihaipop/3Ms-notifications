@@ -11,8 +11,8 @@ test.describe('Tab navigation and content', () => {
 
   test('tab count badges show correct totals', async ({ page }) => {
     await expect(page.getByRole('tab', { name: /action required/i })).toContainText('3');
-    await expect(page.getByRole('tab', { name: /new reports/i })).toContainText('3');
     await expect(page.getByRole('tab', { name: /updates/i })).toContainText('4');
+    await expect(page.getByTestId('new-reports-button')).toContainText('3');
   });
 
   test('Action Required tab shows 3 notification cards', async ({ page }) => {
@@ -20,9 +20,10 @@ test.describe('Tab navigation and content', () => {
     await expect(page.getByTestId('notification-card')).toHaveCount(3);
   });
 
-  test('New Reports tab shows 3 notification cards', async ({ page }) => {
-    await page.getByRole('tab', { name: /new reports/i }).click();
-    await expect(page.getByTestId('notification-card')).toHaveCount(3);
+  test('New Reports button opens drawer with 3 notification cards', async ({ page }) => {
+    await page.getByTestId('new-reports-button').click();
+    const drawer = page.getByTestId('new-reports-drawer');
+    await expect(drawer.getByTestId('notification-card')).toHaveCount(3);
   });
 
   test('Updates tab shows 4 notification cards', async ({ page }) => {
@@ -30,10 +31,13 @@ test.describe('Tab navigation and content', () => {
     await expect(page.getByTestId('notification-card')).toHaveCount(4);
   });
 
-  test('switching tabs swaps CTA labels', async ({ page }) => {
-    await page.getByRole('tab', { name: /new reports/i }).click();
-    await expect(page.getByTestId('notification-cta').first()).toContainText(/view report/i);
+  test('New Reports drawer cards have View Report CTA', async ({ page }) => {
+    await page.getByTestId('new-reports-button').click();
+    const drawer = page.getByTestId('new-reports-drawer');
+    await expect(drawer.getByTestId('notification-cta').first()).toContainText(/view report/i);
+  });
 
+  test('Action Required tab cards have Go to Project CTA', async ({ page }) => {
     await page.getByRole('tab', { name: /action required/i }).click();
     await expect(page.getByTestId('notification-cta').first()).toContainText(/go to project/i);
   });
@@ -64,8 +68,8 @@ test.describe('Tab navigation and content', () => {
     await expect(page.getByText('YESTERDAY')).toBeVisible();
   });
 
-  test('amber banner is hidden on New Reports tab', async ({ page }) => {
-    await page.getByRole('tab', { name: /new reports/i }).click();
+  test('amber banner is hidden when New Reports drawer is open', async ({ page }) => {
+    await page.getByTestId('new-reports-button').click();
     await expect(page.getByText(/clear automatically/i)).not.toBeVisible();
   });
 

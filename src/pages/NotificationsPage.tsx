@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import {
   Box,
   Typography,
@@ -7,15 +7,20 @@ import {
   Tab,
   IconButton,
   Alert,
+  Drawer,
+  Divider,
 } from '@mui/material';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import FilterAltOutlinedIcon from '@mui/icons-material/FilterAltOutlined';
 import NotificationsNoneIcon from '@mui/icons-material/NotificationsNone';
+import CloseIcon from '@mui/icons-material/Close';
+import ArticleOutlinedIcon from '@mui/icons-material/ArticleOutlined';
 import type { NotificationCategory } from '@shared/types/mockDataTypes';
 import type { Notification } from '@shared/types/mockDataTypes';
 import { useNavigate } from 'react-router-dom';
 import { useAppDispatch, useAppSelector } from '../app/hooks';
 import {
+  selectAllNotifications,
   selectItemsByTab,
   selectTabCounts,
   selectUnreadCount,
@@ -33,7 +38,6 @@ import { ReportDetailModal } from '../components/notifications/ReportDetailModal
 
 const TABS: Array<{ value: NotificationCategory; label: string }> = [
   { value: 'action_required', label: 'Action required' },
-  { value: 'new_reports', label: 'New reports' },
   { value: 'fyi', label: 'Updates' },
 ];
 
@@ -92,7 +96,13 @@ export const NotificationsPage = () => {
   const unreadCount = useAppSelector(selectUnreadCount);
   const countsByDate = useAppSelector(selectCountsByDate);
   const dateFilter = useAppSelector(selectDateFilter);
+  const allNotifications = useAppSelector(selectAllNotifications);
+  const newReportsItems = useMemo(
+    () => allNotifications.filter((n) => n.category === 'new_reports'),
+    [allNotifications],
+  );
   const [modalReportId, setModalReportId] = useState<string | null>(null);
+  const [reportsDrawerOpen, setReportsDrawerOpen] = useState(false);
 
   const dateFilterLabel = dateFilter
     ? new Date(`${dateFilter}T00:00:00`).toLocaleDateString('en-GB', {
@@ -126,12 +136,20 @@ export const NotificationsPage = () => {
       }}
     >
       {/* Tabs row */}
-      <Box sx={{ borderBottom: `1px solid ${BORDER_COLOR}`, px: 3 }}>
+      <Box
+        sx={{
+          borderBottom: `1px solid ${BORDER_COLOR}`,
+          px: 3,
+          display: 'flex',
+          alignItems: 'center',
+        }}
+      >
         <Tabs
           value={activeTab}
           onChange={(_, v) => dispatch(setTab(v))}
           sx={{
             minHeight: 48,
+            flex: 1,
             '& .MuiTab-root': {
               textTransform: 'uppercase',
               fontWeight: 600,
@@ -174,6 +192,47 @@ export const NotificationsPage = () => {
             />
           ))}
         </Tabs>
+
+        <Button
+          data-testid="new-reports-button"
+          size="small"
+          variant="outlined"
+          startIcon={<ArticleOutlinedIcon sx={{ fontSize: 16 }} />}
+          onClick={() => setReportsDrawerOpen(true)}
+          sx={{
+            ml: 2,
+            textTransform: 'uppercase',
+            fontWeight: 600,
+            fontSize: 11,
+            letterSpacing: 0.5,
+            borderColor: BORDER_COLOR,
+            color: TEXT_SECONDARY,
+            py: 0.5,
+            px: 1.5,
+            flexShrink: 0,
+            gap: 0.5,
+            '&:hover': { borderColor: BRAND_PURPLE, color: BRAND_PURPLE },
+          }}
+        >
+          New Reports
+          <Box
+            component="span"
+            sx={{
+              bgcolor: '#E5E7EB',
+              color: '#6B7280',
+              borderRadius: '10px',
+              px: 0.75,
+              fontSize: 11,
+              fontWeight: 700,
+              lineHeight: '18px',
+              minWidth: 18,
+              textAlign: 'center',
+              ml: 0.5,
+            }}
+          >
+            {counts.new_reports}
+          </Box>
+        </Button>
       </Box>
 
       {/* Body: list (left) + calendar (right) */}
@@ -345,6 +404,104 @@ export const NotificationsPage = () => {
       </Box>
 
       <ReportDetailModal reportId={modalReportId} onClose={() => setModalReportId(null)} />
+
+      {/* New Reports sidebar drawer */}
+      <Drawer
+        anchor="right"
+        open={reportsDrawerOpen}
+        onClose={() => setReportsDrawerOpen(false)}
+        PaperProps={{
+          sx: {
+            width: 420,
+            display: 'flex',
+            flexDirection: 'column',
+          },
+        }}
+      >
+        <Box
+          data-testid="new-reports-drawer"
+          sx={{ display: 'flex', flexDirection: 'column', height: '100%' }}
+        >
+        {/* Drawer header */}
+        <Box
+          sx={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            px: 3,
+            py: 1.5,
+            borderBottom: `1px solid ${BORDER_COLOR}`,
+            flexShrink: 0,
+          }}
+        >
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+            <ArticleOutlinedIcon sx={{ fontSize: 20, color: '#0F6E56' }} />
+            <Typography fontWeight={700} fontSize={15} color={TEXT_PRIMARY}>
+              New Reports
+            </Typography>
+            <Box
+              component="span"
+              sx={{
+                bgcolor: '#0F6E56',
+                color: '#fff',
+                borderRadius: '10px',
+                px: 0.75,
+                fontSize: 11,
+                fontWeight: 700,
+                lineHeight: '18px',
+                minWidth: 18,
+                textAlign: 'center',
+              }}
+            >
+              {counts.new_reports}
+            </Box>
+          </Box>
+          <IconButton
+            size="small"
+            onClick={() => setReportsDrawerOpen(false)}
+            aria-label="Close new reports panel"
+            sx={{ color: TEXT_SECONDARY }}
+          >
+            <CloseIcon fontSize="small" />
+          </IconButton>
+        </Box>
+
+        <Divider />
+
+        {/* Drawer content */}
+        <Box sx={{ flex: 1, overflowY: 'auto' }}>
+          {newReportsItems.length === 0 ? (
+            <Box sx={{ textAlign: 'center', py: 8 }}>
+              <Typography color="text.disabled" fontSize={13}>
+                No new reports available
+              </Typography>
+            </Box>
+          ) : (
+            <>
+              {groupByDate(newReportsItems).map(({ label, items: groupItems }) => (
+                <Box key={label}>
+                  <Box sx={{ px: 3, pt: 2.25, pb: 1 }}>
+                    <Typography
+                      sx={{
+                        fontSize: 11,
+                        fontWeight: 700,
+                        color: '#6B7280',
+                        letterSpacing: 0.8,
+                      }}
+                    >
+                      {label}
+                    </Typography>
+                  </Box>
+                  {groupItems.map((n) => (
+                    <NotificationCard key={n.id} notification={n} onCtaClick={handleCtaClick} />
+                  ))}
+                </Box>
+              ))}
+            </>
+          )}
+        </Box>
+        </Box>
+      </Drawer>
     </Box>
   );
 };
