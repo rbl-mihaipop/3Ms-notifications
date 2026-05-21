@@ -1,0 +1,47 @@
+[
+  {
+    "id": "usr-001",
+    "firstName": "Alexandru",
+    "lastName": "Ionescu",
+    "email": "alexandru.ionescu@3ms-capital.ro",
+    "role": "portfolio_manager",
+    "phone": "+40 721 100 001",
+    "department": "Portfolio Management"
+  },
+  {
+    "id": "usr-002",
+    "firstName": "Mihaela",
+    "lastName": "Popescu",
+    "email": "mihaela.popescu@3ms-capital.ro",
+    "role": "portfolio_manager",
+    "phone": "+40 721 100 002",
+    "department": "Portfolio Management"
+  },
+  {
+    "id": "usr-003",
+    "firstName": "Radu",
+    "lastName": "Constantin",
+    "email": "radu.constantin@3ms-capital.ro",
+    "role": "object_manager",
+    "phone": "+40 722 200 003",
+    "department": "Asset Operations"
+  },
+  {
+    "id": "usr-004",
+    "firstName": "Elena",
+    "lastName": "Dumitrescu",
+    "email": "elena.dumitrescu@3ms-capital.ro",
+    "role": "object_manager",
+    "phone": "+40 722 200 004",
+    "department": "Asset Operations"
+  },
+  {
+    "id": "usr-005",
+    "firstName": "Bogdan",
+    "lastName": "Marinescu",
+    "email": "bogdan.marinescu@3ms-capital.ro",
+    "role": "object_manager",
+    "phone": "+40 722 200 005",
+    "department": "Asset Operations"
+  }
+]
