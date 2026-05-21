@@ -18,7 +18,7 @@ interface NotificationsState {
 }
 
 const initialState: NotificationsState = {
-  items: mockNotifications as Notification[],
+  items: mockNotifications.map((n) => ({ ...n })) as Notification[],
   activeTab: 'action_required',
   toasts: [],
 };
@@ -44,7 +44,14 @@ const notificationsSlice = createSlice({
       if (item) item.status = 'read';
     },
     markAllAsRead(state) {
-      state.items.forEach((n) => { n.status = 'read'; });
+      state.items = state.items.map((n) => ({ ...n, status: 'read' as const }));
+    },
+    dismiss(state, action: PayloadAction<string>) {
+      state.items = state.items.filter((n) => n.id !== action.payload);
+    },
+    togglePin(state, action: PayloadAction<string>) {
+      const item = state.items.find((n) => n.id === action.payload);
+      if (item) item.pinned = !item.pinned;
     },
     setTab(state, action: PayloadAction<NotificationCategory>) {
       state.activeTab = action.payload;
@@ -63,6 +70,8 @@ export const {
   updateNotification,
   markAsRead,
   markAllAsRead,
+  dismiss,
+  togglePin,
   setTab,
   addToast,
   dismissToast,
