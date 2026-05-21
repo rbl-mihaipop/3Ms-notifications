@@ -2,7 +2,16 @@ import { Box, Typography, Chip, IconButton, Link } from '@mui/material';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import EastIcon from '@mui/icons-material/East';
 import type { Notification } from '@shared/types/mockDataTypes';
-import { BRAND_PURPLE, TEXT_PRIMARY, TEXT_SECONDARY, BORDER_COLOR, SUBTYPE_LABELS, SUBTYPE_PILL_COLORS } from '../../theme/theme';
+import {
+  BRAND_PURPLE,
+  TEXT_PRIMARY,
+  TEXT_SECONDARY,
+  BORDER_COLOR,
+  SUBTYPE_LABELS,
+  SUBTYPE_PILL_COLORS,
+  STATUS_BADGE_COLORS,
+  STATUS_BADGE_LABELS,
+} from '../../theme/theme';
 import { useAppDispatch } from '../../app/hooks';
 import { markAsRead } from '../../state/slices/notificationsSlice';
 
@@ -26,6 +35,7 @@ export const NotificationCard = ({ notification, onCtaClick }: Props) => {
   const dispatch = useAppDispatch();
   const isUnread = notification.status === 'unread';
   const subtypeLabel = SUBTYPE_LABELS[notification.subtype];
+  const statusBadgeColors = STATUS_BADGE_COLORS[notification.statusBadge];
   const pill = SUBTYPE_PILL_COLORS[notification.subtype] ?? {
     bg: '#E5E7EB',
     color: '#374151',
@@ -60,7 +70,6 @@ export const NotificationCard = ({ notification, onCtaClick }: Props) => {
         gap: 1.5,
       }}
     >
-      {/* Unread dot */}
       <Box
         sx={{
           width: 7,
@@ -72,7 +81,6 @@ export const NotificationCard = ({ notification, onCtaClick }: Props) => {
         }}
       />
 
-      {/* Subtype pill */}
       <Chip
         data-testid="notification-subtype"
         label={subtypeLabel}
@@ -90,14 +98,28 @@ export const NotificationCard = ({ notification, onCtaClick }: Props) => {
         }}
       />
 
-      {/* Content */}
       <Box sx={{ flex: 1, minWidth: 0 }}>
-        <Typography
-          fontWeight={isUnread ? 600 : 400}
-          sx={{ fontSize: 14, lineHeight: '20px', color: TEXT_PRIMARY, mb: 0.5 }}
-        >
-          {notification.title}
-        </Typography>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 0.5 }}>
+          <Typography
+            fontWeight={isUnread ? 600 : 400}
+            sx={{ fontSize: 14, lineHeight: '20px', color: TEXT_PRIMARY }}
+          >
+            {notification.title}
+          </Typography>
+          <Chip
+            label={STATUS_BADGE_LABELS[notification.statusBadge]}
+            size="small"
+            sx={{
+              bgcolor: statusBadgeColors.bg,
+              color: statusBadgeColors.color,
+              fontWeight: 600,
+              fontSize: 10,
+              height: 20,
+              textTransform: 'capitalize',
+              '& .MuiChip-label': { px: 1 },
+            }}
+          />
+        </Box>
 
         {notification.valueChange && (
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75, my: 0.75 }}>
@@ -114,9 +136,7 @@ export const NotificationCard = ({ notification, onCtaClick }: Props) => {
           </Box>
         )}
 
-        <Typography
-          sx={{ fontSize: 12, color: TEXT_SECONDARY, lineHeight: '20px' }}
-        >
+        <Typography sx={{ fontSize: 12, color: TEXT_SECONDARY, lineHeight: '20px' }}>
           {notification.description}
         </Typography>
 
@@ -141,7 +161,6 @@ export const NotificationCard = ({ notification, onCtaClick }: Props) => {
         )}
       </Box>
 
-      {/* CTA link */}
       <Link
         data-testid="notification-cta"
         component="button"
@@ -160,7 +179,6 @@ export const NotificationCard = ({ notification, onCtaClick }: Props) => {
         {notification.ctaLabel} →
       </Link>
 
-      {/* Kebab menu */}
       <IconButton
         size="small"
         onClick={(e) => e.stopPropagation()}

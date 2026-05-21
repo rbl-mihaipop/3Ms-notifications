@@ -99,8 +99,6 @@ export const NotificationsPage = () => {
   const pinnedItems = items.filter((n) => n.pinned);
   const unpinnedItems = items.filter((n) => !n.pinned);
   const dateGroups = groupByDate(unpinnedItems);
-  const activeCategory = activeTab === 'all' ? 'fyi' : activeTab;
-
   return (
     <Box
       sx={{
@@ -174,7 +172,7 @@ export const NotificationsPage = () => {
                 Notifications
               </Typography>
               <Typography variant="caption" sx={{ fontSize: 12, color: TEXT_SECONDARY }}>
-                {TAB_DESCRIPTIONS[activeCategory]}
+                {TAB_DESCRIPTIONS[activeTab]}
               </Typography>
             </Box>
           </Box>

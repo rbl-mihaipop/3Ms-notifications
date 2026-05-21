@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
 
-test.describe('Updates (FYI) tab', () => {
+test.describe('Assignments (FYI) tab', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/notifications');
     await page.getByRole('tab', { name: /updates/i }).click();

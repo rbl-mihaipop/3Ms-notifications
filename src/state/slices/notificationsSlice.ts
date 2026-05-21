@@ -4,20 +4,41 @@ import type { Notification, NotificationCategory } from '@shared/types/mockDataT
 import mockNotifications from '@shared/mocks/notifications.json';
 import type { RootState } from '../../app/store';
 
+export interface ToastMessage {
+  id: string;
+  title: string;
+  message: string;
+  severity: 'info' | 'success' | 'warning';
+}
+
 interface NotificationsState {
   items: Notification[];
-  activeTab: NotificationCategory | 'all';
+  activeTab: NotificationCategory;
+  toasts: ToastMessage[];
 }
 
 const initialState: NotificationsState = {
   items: mockNotifications as Notification[],
   activeTab: 'action_required',
+  toasts: [],
 };
 
 const notificationsSlice = createSlice({
   name: 'notifications',
   initialState,
   reducers: {
+    addNotification(state, action: PayloadAction<Notification>) {
+      state.items.unshift(action.payload);
+    },
+    updateNotification(
+      state,
+      action: PayloadAction<{ id: string; changes: Partial<Notification> }>,
+    ) {
+      const item = state.items.find((n) => n.id === action.payload.id);
+      if (item) {
+        Object.assign(item, action.payload.changes);
+      }
+    },
     markAsRead(state, action: PayloadAction<string>) {
       const item = state.items.find((n) => n.id === action.payload);
       if (item) item.status = 'read';
@@ -25,13 +46,27 @@ const notificationsSlice = createSlice({
     markAllAsRead(state) {
       state.items.forEach((n) => { n.status = 'read'; });
     },
-    setTab(state, action: PayloadAction<NotificationCategory | 'all'>) {
+    setTab(state, action: PayloadAction<NotificationCategory>) {
       state.activeTab = action.payload;
+    },
+    addToast(state, action: PayloadAction<ToastMessage>) {
+      state.toasts.push(action.payload);
+    },
+    dismissToast(state, action: PayloadAction<string>) {
+      state.toasts = state.toasts.filter((toast) => toast.id !== action.payload);
     },
   },
 });
 
-export const { markAsRead, markAllAsRead, setTab } = notificationsSlice.actions;
+export const {
+  addNotification,
+  updateNotification,
+  markAsRead,
+  markAllAsRead,
+  setTab,
+  addToast,
+  dismissToast,
+} = notificationsSlice.actions;
 export default notificationsSlice.reducer;
 
 // Selectors
@@ -40,6 +75,8 @@ export const selectAllNotifications = (state: RootState) =>
 
 export const selectActiveTab = (state: RootState) =>
   state.notifications.activeTab;
+
+export const selectToasts = (state: RootState) => state.notifications.toasts;
 
 export const selectUnreadCount = createSelector(
   selectAllNotifications,
@@ -58,6 +95,5 @@ export const selectTabCounts = createSelector(
 export const selectItemsByTab = createSelector(
   selectAllNotifications,
   selectActiveTab,
-  (items, tab) =>
-    tab === 'all' ? items : items.filter((n) => n.category === tab),
+  (items, tab) => items.filter((n) => n.category === tab),
 );

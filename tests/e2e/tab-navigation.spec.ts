@@ -16,6 +16,7 @@ test.describe('Tab navigation and content', () => {
   });
 
   test('Action Required tab shows 3 notification cards', async ({ page }) => {
+    await page.getByRole('tab', { name: /action required/i }).click();
     await expect(page.getByTestId('notification-card')).toHaveCount(3);
   });
 
@@ -53,11 +54,13 @@ test.describe('Tab navigation and content', () => {
 
   test('TODAY date group is visible on Action Required tab', async ({ page }) => {
     // ntf-008 was created 2026-05-21, so it falls under TODAY
+    await page.getByRole('tab', { name: /action required/i }).click();
     await expect(page.getByText(/today/i).first()).toBeVisible();
   });
 
   test('YESTERDAY date group is visible on Action Required tab', async ({ page }) => {
     // ntf-009 was created 2026-05-20
+    await page.getByRole('tab', { name: /action required/i }).click();
     await expect(page.getByText('YESTERDAY')).toBeVisible();
   });
 

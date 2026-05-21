@@ -115,6 +115,7 @@ export const SUBTYPE_LABELS = {
   past_closing_date: 'Past closing date',
   phase_transition: 'Phase transition',
   parameter_change: 'Parameter change',
+  report_generation: 'Report status',
   report_ready: 'Report ready',
   object_assigned: 'Object assigned',
 } as const;
@@ -131,4 +132,10 @@ export const STATUS_BADGE_COLORS = {
   new:         { bg: 'rgb(129, 199, 132)', color: 'rgba(0,0,0,0.87)' },
   in_progress: { bg: '#FEF3C7',            color: '#92400E' },
   resolved:    { bg: '#D1FAE5',            color: '#065F46' },
+} as const;
+
+export const STATUS_BADGE_LABELS = {
+  new: 'new',
+  in_progress: 'in progress',
+  resolved: 'resolved',
 } as const;

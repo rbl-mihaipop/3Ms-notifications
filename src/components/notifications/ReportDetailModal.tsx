@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useRef } from 'react';
 import {
   Dialog,
   DialogTitle,
@@ -9,14 +9,20 @@ import {
   Chip,
   Button,
   IconButton,
-  Snackbar,
-  Alert,
   Divider,
 } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import DownloadIcon from '@mui/icons-material/Download';
 import mockReports from '@shared/mocks/reports.json';
 import mockUsers from '@shared/mocks/users.json';
+import { useAppDispatch } from '../../app/hooks';
+import { addNotification, addToast, updateNotification } from '../../state/slices/notificationsSlice';
+
+const REPORT_PROGRESS_DELAY = 2000;
+const REPORT_READY_DELAY = 4500;
+const createId = () => (typeof crypto !== 'undefined' && crypto.randomUUID
+  ? crypto.randomUUID()
+  : `${Date.now()}-${Math.random().toString(36).slice(2)}`);
 
 interface Props {
   reportId: string | null;
@@ -24,26 +30,109 @@ interface Props {
 }
 
 export const ReportDetailModal = ({ reportId, onClose }: Props) => {
-  const [snackOpen, setSnackOpen] = useState(false);
+  const dispatch = useAppDispatch();
+  const timeoutIds = useRef<number[]>([]);
+  const clearTimeouts = () => {
+    timeoutIds.current.forEach((timeoutId) => window.clearTimeout(timeoutId));
+    timeoutIds.current = [];
+  };
+  const handleClose = () => {
+    clearTimeouts();
+    onClose();
+  };
 
   const report = mockReports.find((r) => r.id === reportId);
   const user = report ? mockUsers.find((u) => u.id === report.generatedByUserId) : null;
 
+  useEffect(() => {
+    clearTimeouts();
+    return () => {
+      clearTimeouts();
+    };
+  }, [reportId]);
+
   if (!report) return null;
 
   const handleDownload = () => {
-    setSnackOpen(true);
+    const notificationId = `ntf-report-progress-${createId()}`;
+    const initialDescription = `${report.title} is being generated.`;
+
+    dispatch(addNotification({
+      id: notificationId,
+      type: 'report',
+      category: 'new_reports',
+      subtype: 'report_generation',
+      statusBadge: 'new',
+      title: 'Report generation started',
+      description: initialDescription,
+      entityName: report.title,
+      entityId: report.id.toUpperCase(),
+      relatedEntityId: report.id,
+      relatedEntityName: report.title,
+      createdAt: new Date().toISOString(),
+      status: 'unread',
+      priority: 'medium',
+      ctaLabel: 'View report status',
+    }));
+
+    dispatch(addToast({
+      id: `toast-report-start-${createId()}`,
+      title: 'Report generation started',
+      message: initialDescription,
+      severity: 'info',
+    }));
+
+    timeoutIds.current.push(window.setTimeout(() => {
+      const progressDescription = `${report.title} generation is in progress.`;
+      dispatch(updateNotification({
+        id: notificationId,
+        changes: {
+          title: 'Report generation in progress',
+          description: progressDescription,
+          statusBadge: 'in_progress',
+        },
+      }));
+
+      dispatch(addToast({
+        id: `toast-report-progress-${createId()}`,
+        title: 'Report generation in progress',
+        message: progressDescription,
+        severity: 'info',
+      }));
+    }, REPORT_PROGRESS_DELAY));
+
+    timeoutIds.current.push(window.setTimeout(() => {
+      const readyDescription = `${report.title} is ready to download.`;
+      dispatch(updateNotification({
+        id: notificationId,
+        changes: {
+          title: 'Report ready',
+          description: readyDescription,
+          subtype: 'report_ready',
+          statusBadge: 'resolved',
+          priority: 'high',
+          ctaLabel: 'Download report',
+        },
+      }));
+
+      dispatch(addToast({
+        id: `toast-report-ready-${createId()}`,
+        title: 'Report ready',
+        message: readyDescription,
+        severity: 'success',
+      }));
+    }, REPORT_READY_DELAY));
   };
 
   return (
     <>
-      <Dialog open={!!reportId} onClose={onClose} maxWidth="sm" fullWidth>
+      <Dialog open={!!reportId} onClose={handleClose} maxWidth="sm" fullWidth>
         <DialogTitle sx={{ pr: 6 }}>
           <Typography fontWeight={600} fontSize={16}>
             {report.title}
           </Typography>
           <IconButton
-            onClick={onClose}
+            onClick={handleClose}
             size="small"
             sx={{ position: 'absolute', right: 12, top: 12, color: 'text.secondary' }}
           >
@@ -113,7 +202,7 @@ export const ReportDetailModal = ({ reportId, onClose }: Props) => {
         <Divider />
 
         <DialogActions sx={{ px: 3, py: 2 }}>
-          <Button onClick={onClose} color="inherit" size="small">
+            <Button onClick={handleClose} color="inherit" size="small">
             Close
           </Button>
           <Button
@@ -131,17 +220,6 @@ export const ReportDetailModal = ({ reportId, onClose }: Props) => {
           </Button>
         </DialogActions>
       </Dialog>
-
-      <Snackbar
-        open={snackOpen}
-        autoHideDuration={3000}
-        onClose={() => setSnackOpen(false)}
-        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
-      >
-        <Alert severity="success" onClose={() => setSnackOpen(false)} sx={{ fontSize: 13 }}>
-          {report.title} download started
-        </Alert>
-      </Snackbar>
     </>
   );
 };

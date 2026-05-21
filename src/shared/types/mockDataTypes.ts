@@ -72,6 +72,7 @@ export type NotificationSubtype =
   | "past_closing_date"
   | "phase_transition"
   | "parameter_change"
+  | "report_generation"
   | "report_ready"
   | "object_assigned";
 
@@ -104,6 +105,9 @@ export interface Notification {
   status: NotificationStatus;
   priority: NotificationPriority;
   ctaLabel: string;
+  changedField?: "Portfolio Manager" | "Object Manager";
+  previousValue?: string;
+  newValue?: string;
 }
 
 // ─── User / Manager ───────────────────────────────────────────────────────────
