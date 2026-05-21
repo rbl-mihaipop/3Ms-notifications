@@ -18,8 +18,9 @@ import { Outlet, useNavigate, useLocation } from 'react-router-dom';
 import { useAppSelector } from '../app/hooks';
 import { selectUnreadCount } from '../state/slices/notificationsSlice';
 import { ToastNotifications } from '../components/notifications/ToastNotifications';
+import { BRAND_PURPLE, BRAND_PURPLE_BG, TEXT_PRIMARY, TEXT_SECONDARY, BG_SURFACE, BORDER_COLOR } from '../theme/theme';
 
-const SIDEBAR_WIDTH = 232;
+const SIDEBAR_WIDTH = 300;
 
 export const MainLayout = () => {
   const navigate = useNavigate();
@@ -29,14 +30,14 @@ export const MainLayout = () => {
   const isNotifications = location.pathname.startsWith('/notifications');
 
   return (
-    <Box sx={{ display: 'flex', minHeight: '100vh', bgcolor: '#F9FAFB' }}>
+    <Box sx={{ display: 'flex', minHeight: '100vh', bgcolor: 'rgb(245, 245, 245)' }}>
       {/* Sidebar */}
       <Box
         sx={{
           width: SIDEBAR_WIDTH,
           flexShrink: 0,
-          bgcolor: '#fff',
-          borderRight: '1px solid #E5E7EB',
+          bgcolor: 'rgb(245, 245, 245)',
+          borderRight: `1px solid ${BORDER_COLOR}`,
           display: 'flex',
           flexDirection: 'column',
           position: 'fixed',
@@ -52,7 +53,7 @@ export const MainLayout = () => {
             sx={{
               width: 28,
               height: 28,
-              bgcolor: '#2D8B57',
+              bgcolor: BRAND_PURPLE,
               borderRadius: 1,
               display: 'flex',
               alignItems: 'center',
@@ -61,7 +62,7 @@ export const MainLayout = () => {
           >
             <Typography sx={{ color: '#fff', fontSize: 14, fontWeight: 700 }}>s</Typography>
           </Box>
-          <Typography fontWeight={600} fontSize={15} letterSpacing={0.3}>
+          <Typography fontWeight={600} fontSize={15} letterSpacing={0.3} color={TEXT_PRIMARY}>
             stratus
           </Typography>
         </Box>
@@ -76,52 +77,51 @@ export const MainLayout = () => {
                 onClick={() => navigate('/master-data')}
                 sx={{
                   pl: 1.5,
-                  py: 0.6,
+                  py: 0.75,
                   borderRadius: 1,
                   mx: 0.75,
-                  color: isMasterData ? '#6D28D9' : '#374151',
-                  bgcolor: isMasterData ? '#EDE9FE' : 'transparent',
-                  '&:hover': { bgcolor: isMasterData ? '#EDE9FE' : '#F3F4F6' },
+                  color: isMasterData ? BRAND_PURPLE : TEXT_PRIMARY,
+                  bgcolor: isMasterData ? BRAND_PURPLE_BG : 'transparent',
+                  '&:hover': { bgcolor: isMasterData ? BRAND_PURPLE_BG : 'rgba(0,0,0,0.04)' },
                 }}
               >
                 <ListItemIcon sx={{ minWidth: 28 }}>
-                  <DomainOutlinedIcon sx={{ fontSize: 18, color: isMasterData ? '#6D28D9' : '#6B7280' }} />
+                  <DomainOutlinedIcon sx={{ fontSize: 18, color: isMasterData ? BRAND_PURPLE : TEXT_SECONDARY }} />
                 </ListItemIcon>
                 <ListItemText
                   primary="Master Data"
-                  primaryTypographyProps={{ fontSize: 13, fontWeight: isMasterData ? 500 : 400 }}
+                  primaryTypographyProps={{ fontSize: 16, fontWeight: isMasterData ? 600 : 400, color: isMasterData ? BRAND_PURPLE : TEXT_PRIMARY }}
                 />
               </ListItemButton>
             </ListItem>
           </List>
 
-          {/* Notifications */}
           <List disablePadding>
             <ListItem disablePadding>
               <ListItemButton
                 onClick={() => navigate('/notifications')}
                 sx={{
                   pl: 1.5,
-                  py: 0.6,
+                  py: 0.75,
                   borderRadius: 1,
                   mx: 0.75,
-                  color: isNotifications ? '#6D28D9' : '#374151',
-                  bgcolor: isNotifications ? '#EDE9FE' : 'transparent',
-                  '&:hover': { bgcolor: isNotifications ? '#EDE9FE' : '#F3F4F6' },
+                  color: isNotifications ? BRAND_PURPLE : TEXT_PRIMARY,
+                  bgcolor: isNotifications ? BRAND_PURPLE_BG : 'transparent',
+                  '&:hover': { bgcolor: isNotifications ? BRAND_PURPLE_BG : 'rgba(0,0,0,0.04)' },
                 }}
               >
                 <ListItemIcon sx={{ minWidth: 28 }}>
-                  <NotificationsNoneIcon sx={{ fontSize: 18, color: isNotifications ? '#6D28D9' : '#6B7280' }} />
+                  <NotificationsNoneIcon sx={{ fontSize: 18, color: isNotifications ? BRAND_PURPLE : TEXT_SECONDARY }} />
                 </ListItemIcon>
                 <ListItemText
                   primary="Notifications"
-                  primaryTypographyProps={{ fontSize: 13, fontWeight: isNotifications ? 500 : 400 }}
+                  primaryTypographyProps={{ fontSize: 16, fontWeight: isNotifications ? 600 : 400, color: isNotifications ? BRAND_PURPLE : TEXT_PRIMARY }}
                 />
                 {unreadCount > 0 && (
                   <Box
                     data-testid="notification-badge"
                     sx={{
-                      bgcolor: '#EF4444',
+                      bgcolor: BRAND_PURPLE,
                       color: '#fff',
                       borderRadius: '10px',
                       px: 0.75,
@@ -143,7 +143,7 @@ export const MainLayout = () => {
 
       {/* Main content */}
       <Box sx={{ ml: `${SIDEBAR_WIDTH}px`, flex: 1, display: 'flex', flexDirection: 'column' }}>
-        {/* Top-right controls */}
+        {/* App bar */}
         <Box
           sx={{
             display: 'flex',
@@ -152,18 +152,18 @@ export const MainLayout = () => {
             gap: 1,
             px: 3,
             py: 1.25,
-            borderBottom: '1px solid #E5E7EB',
-            bgcolor: '#fff',
+            bgcolor: BG_SURFACE,
+            boxShadow: 'rgba(0,0,0,0.2) 0px 2px 4px -1px, rgba(0,0,0,0.14) 0px 4px 5px 0px, rgba(0,0,0,0.12) 0px 1px 10px 0px',
             position: 'sticky',
             top: 0,
             zIndex: 50,
           }}
         >
-          <Chip label="DEV" size="small" variant="outlined" sx={{ fontSize: 11, height: 22, fontWeight: 600, color: '#6B7280', borderColor: '#D1D5DB' }} />
+          <Chip label="DEV" size="small" variant="outlined" sx={{ fontSize: 11, height: 22, fontWeight: 600, color: TEXT_SECONDARY, borderColor: BORDER_COLOR }} />
           <IconButton size="small">
-            <SettingsOutlinedIcon sx={{ fontSize: 18, color: '#6B7280' }} />
+            <SettingsOutlinedIcon sx={{ fontSize: 18, color: TEXT_SECONDARY }} />
           </IconButton>
-          <Avatar sx={{ width: 28, height: 28, bgcolor: '#374151', fontSize: 12 }}>SK</Avatar>
+          <Avatar sx={{ width: 28, height: 28, bgcolor: BRAND_PURPLE, fontSize: 12 }}>SK</Avatar>
         </Box>
 
         <Box component="main" sx={{ flex: 1 }}>

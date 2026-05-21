@@ -36,6 +36,6 @@ test.describe('Master Data sidebar navigation', () => {
 
   test('active nav item is highlighted on Master Data page', async ({ page }) => {
     await page.goto('/master-data');
-    await expect(page.locator('[role="button"]').filter({ hasText: 'Master Data' }).first()).toHaveCSS('color', 'rgb(109, 40, 217)');
+    await expect(page.locator('[role="button"]').filter({ hasText: 'Master Data' }).first()).toHaveCSS('color', 'rgb(128, 51, 128)');
   });
 });

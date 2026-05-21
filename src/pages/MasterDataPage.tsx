@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import {
   Box,
   Typography,
@@ -19,9 +19,11 @@ import {
   Select,
   MenuItem,
 } from '@mui/material';
+import { useSearchParams } from 'react-router-dom';
 import { mockUsers } from '@shared/mocks';
 import type { Building } from '@shared/types/mockDataTypes';
 import { useAppDispatch, useAppSelector } from '../app/hooks';
+import { BRAND_PURPLE } from '../theme/theme';
 import { selectBuildings, updateBuildingManagers } from '../state/slices/masterDataSlice';
 import { addNotification, addToast } from '../state/slices/notificationsSlice';
 
@@ -33,6 +35,9 @@ const createId = () => (typeof crypto !== 'undefined' && crypto.randomUUID
 export const MasterDataPage = () => {
   const dispatch = useAppDispatch();
   const buildings = useAppSelector(selectBuildings);
+  const [searchParams] = useSearchParams();
+  const highlightId = searchParams.get('object');
+  const highlightRef = useRef<HTMLTableRowElement | null>(null);
   const [editingBuilding, setEditingBuilding] = useState<Building | null>(null);
   const [portfolioManagerId, setPortfolioManagerId] = useState('');
   const [objectManagerId, setObjectManagerId] = useState('');
@@ -45,6 +50,12 @@ export const MasterDataPage = () => {
     () => mockUsers.filter((user) => user.role === 'object_manager'),
     [],
   );
+
+  useEffect(() => {
+    if (highlightRef.current) {
+      highlightRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+  }, [highlightId]);
 
   const getUserName = (userId: string) => {
     const user = mockUsers.find((item) => item.id === userId);
@@ -90,6 +101,11 @@ export const MasterDataPage = () => {
       changedField: field,
       previousValue,
       newValue,
+      valueChange: {
+        label: field,
+        from: previousValue,
+        to: newValue,
+      },
     }));
 
     dispatch(addToast({
@@ -141,14 +157,7 @@ export const MasterDataPage = () => {
         Master Data
       </Typography>
 
-      <TableContainer
-        component={Paper}
-        sx={{
-          border: '1px solid #E5E7EB',
-          borderRadius: 1,
-          boxShadow: 'none',
-        }}
-      >
+      <TableContainer component={Paper} sx={{ border: '1px solid #E5E7EB', borderRadius: 1, boxShadow: 'none' }}>
         <Table size="small">
           <TableHead>
             <TableRow>
@@ -169,28 +178,41 @@ export const MasterDataPage = () => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {buildings.map((building) => (
-              <TableRow key={building.id} hover>
-                <TableCell>{building.id}</TableCell>
-                <TableCell>{building.name}</TableCell>
-                <TableCell>{building.city}</TableCell>
-                <TableCell>{building.country}</TableCell>
-                <TableCell>{building.type}</TableCell>
-                <TableCell>{getUserName(building.portfolioManagerId)}</TableCell>
-                <TableCell>{getUserName(building.objectManagerId)}</TableCell>
-                <TableCell>{building.energyClass}</TableCell>
-                <TableCell align="right">{formatNumber(building.totalAreaSqm)}</TableCell>
-                <TableCell align="right">{formatNumber(building.refurbishmentCostEur)}</TableCell>
-                <TableCell align="right">{building.projectStartYear}</TableCell>
-                <TableCell align="right">{building.expectedClosingYear}</TableCell>
-                <TableCell>{building.projectStatus}</TableCell>
-                <TableCell align="right">
-                  <Button size="small" onClick={() => openEditDialog(building)}>
-                    Edit
-                  </Button>
-                </TableCell>
-              </TableRow>
-            ))}
+            {buildings.map((building) => {
+              const isHighlighted = building.id === highlightId;
+              return (
+                <TableRow
+                  key={building.id}
+                  hover
+                  ref={isHighlighted ? highlightRef : null}
+                  sx={{
+                    bgcolor: isHighlighted ? 'rgba(128, 51, 128, 0.08)' : 'inherit',
+                    outline: isHighlighted ? `2px solid ${BRAND_PURPLE}` : 'none',
+                    outlineOffset: '-2px',
+                    transition: 'background-color 0.2s',
+                  }}
+                >
+                  <TableCell>{building.id}</TableCell>
+                  <TableCell sx={{ fontWeight: isHighlighted ? 600 : 400 }}>{building.name}</TableCell>
+                  <TableCell>{building.city}</TableCell>
+                  <TableCell>{building.country}</TableCell>
+                  <TableCell>{building.type}</TableCell>
+                  <TableCell>{getUserName(building.portfolioManagerId)}</TableCell>
+                  <TableCell>{getUserName(building.objectManagerId)}</TableCell>
+                  <TableCell>{building.energyClass}</TableCell>
+                  <TableCell align="right">{formatNumber(building.totalAreaSqm)}</TableCell>
+                  <TableCell align="right">{formatNumber(building.refurbishmentCostEur)}</TableCell>
+                  <TableCell align="right">{building.projectStartYear}</TableCell>
+                  <TableCell align="right">{building.expectedClosingYear}</TableCell>
+                  <TableCell>{building.projectStatus}</TableCell>
+                  <TableCell align="right">
+                    <Button size="small" onClick={() => openEditDialog(building)}>
+                      Edit
+                    </Button>
+                  </TableCell>
+                </TableRow>
+              );
+            })}
           </TableBody>
         </Table>
       </TableContainer>

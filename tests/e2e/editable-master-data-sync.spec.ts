@@ -16,18 +16,15 @@ test.describe('Editable master data + synchronized notifications', () => {
     await expect(page.getByRole('cell', { name: 'Elena Dumitrescu' }).first()).toBeVisible();
 
     await page.getByRole('button', { name: /notifications/i }).first().click();
-    await page.getByRole('tab', { name: /assignments/i }).click();
-    await expect(page.getByRole('tab', { name: /assignments/i })).toContainText('6');
+    await page.getByRole('tab', { name: /updates/i }).click();
+    await expect(page.getByRole('tab', { name: /updates/i })).toContainText('6');
     await expect(page.getByText('Object assignment updated').first()).toBeVisible();
     await expect(page.getByTestId('notification-cta').first()).toContainText(/view object/i);
-
-    await page.getByRole('tab', { name: /all/i }).click();
-    await expect(page.getByText('Object assignment updated').first()).toBeVisible();
   });
 
   test('report download flow emits started, in-progress, and done updates', async ({ page }) => {
     await page.goto('/notifications');
-    await page.getByRole('tab', { name: /reports/i }).click();
+    await page.getByRole('tab', { name: /new reports/i }).click();
 
     await page.getByTestId('notification-cta').first().click();
     await page.getByRole('dialog').getByRole('button', { name: /download pdf/i }).click();

@@ -13,13 +13,13 @@ export interface ToastMessage {
 
 interface NotificationsState {
   items: Notification[];
-  activeTab: NotificationCategory | 'all';
+  activeTab: NotificationCategory;
   toasts: ToastMessage[];
 }
 
 const initialState: NotificationsState = {
   items: mockNotifications as Notification[],
-  activeTab: 'all',
+  activeTab: 'action_required',
   toasts: [],
 };
 
@@ -46,7 +46,7 @@ const notificationsSlice = createSlice({
     markAllAsRead(state) {
       state.items.forEach((n) => { n.status = 'read'; });
     },
-    setTab(state, action: PayloadAction<NotificationCategory | 'all'>) {
+    setTab(state, action: PayloadAction<NotificationCategory>) {
       state.activeTab = action.payload;
     },
     addToast(state, action: PayloadAction<ToastMessage>) {
@@ -86,7 +86,6 @@ export const selectUnreadCount = createSelector(
 export const selectTabCounts = createSelector(
   selectAllNotifications,
   (items) => ({
-    all: items.length,
     action_required: items.filter((n) => n.category === 'action_required').length,
     new_reports: items.filter((n) => n.category === 'new_reports').length,
     fyi: items.filter((n) => n.category === 'fyi').length,
@@ -96,6 +95,5 @@ export const selectTabCounts = createSelector(
 export const selectItemsByTab = createSelector(
   selectAllNotifications,
   selectActiveTab,
-  (items, tab) =>
-    tab === 'all' ? items : items.filter((n) => n.category === tab),
+  (items, tab) => items.filter((n) => n.category === tab),
 );
