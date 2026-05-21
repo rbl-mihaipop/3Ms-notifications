@@ -15,12 +15,22 @@ interface NotificationsState {
   items: Notification[];
   activeTab: NotificationCategory;
   toasts: ToastMessage[];
+  dateFilter: string | null; // YYYY-MM-DD in local time, or null for no filter
 }
 
 const initialState: NotificationsState = {
   items: mockNotifications.map((n) => ({ ...n })) as Notification[],
   activeTab: 'action_required',
   toasts: [],
+  dateFilter: null,
+};
+
+export const toLocalDateKey = (iso: string): string => {
+  const d = new Date(iso);
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${y}-${m}-${day}`;
 };
 
 const notificationsSlice = createSlice({
@@ -56,6 +66,9 @@ const notificationsSlice = createSlice({
     setTab(state, action: PayloadAction<NotificationCategory>) {
       state.activeTab = action.payload;
     },
+    setDateFilter(state, action: PayloadAction<string | null>) {
+      state.dateFilter = action.payload;
+    },
     addToast(state, action: PayloadAction<ToastMessage>) {
       state.toasts.push(action.payload);
     },
@@ -73,6 +86,7 @@ export const {
   dismiss,
   togglePin,
   setTab,
+  setDateFilter,
   addToast,
   dismissToast,
 } = notificationsSlice.actions;
@@ -86,6 +100,9 @@ export const selectActiveTab = (state: RootState) =>
   state.notifications.activeTab;
 
 export const selectToasts = (state: RootState) => state.notifications.toasts;
+
+export const selectDateFilter = (state: RootState) =>
+  state.notifications.dateFilter;
 
 export const selectUnreadCount = createSelector(
   selectAllNotifications,
@@ -101,8 +118,26 @@ export const selectTabCounts = createSelector(
   }),
 );
 
+// Per-day counts across all categories — keyed by 'YYYY-MM-DD' in local time
+export const selectCountsByDate = createSelector(
+  selectAllNotifications,
+  (items): Record<string, number> => {
+    const counts: Record<string, number> = {};
+    for (const item of items) {
+      const key = toLocalDateKey(item.createdAt);
+      counts[key] = (counts[key] ?? 0) + 1;
+    }
+    return counts;
+  },
+);
+
 export const selectItemsByTab = createSelector(
   selectAllNotifications,
   selectActiveTab,
-  (items, tab) => items.filter((n) => n.category === tab),
+  selectDateFilter,
+  (items, tab, dateFilter) => {
+    const byCategory = items.filter((n) => n.category === tab);
+    if (!dateFilter) return byCategory;
+    return byCategory.filter((n) => toLocalDateKey(n.createdAt) === dateFilter);
+  },
 );
