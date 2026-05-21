@@ -24,8 +24,8 @@ export const MainLayout = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const unreadCount = useAppSelector(selectUnreadCount);
-  const isMasterData = location.pathname === '/master-data';
-  const isNotifications = location.pathname === '/notifications';
+  const isMasterData = location.pathname.startsWith('/master-data');
+  const isNotifications = location.pathname.startsWith('/notifications');
 
   return (
     <Box sx={{ display: 'flex', minHeight: '100vh', bgcolor: '#F9FAFB' }}>

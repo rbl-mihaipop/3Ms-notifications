@@ -11,7 +11,7 @@ import {
 } from '@mui/material';
 import { mockBuildings } from '@shared/mocks';
 
-const formatNumber = (value: number) => value.toLocaleString('en-GB');
+const formatNumber = (value: number) => value.toLocaleString('ro-RO');
 
 export const MasterDataPage = () => (
   <Box sx={{ p: 3 }}>
