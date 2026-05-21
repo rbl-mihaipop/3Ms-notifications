@@ -15,7 +15,7 @@ const formatNumber = (value: number) => value.toLocaleString('en-GB');
 
 export const MasterDataPage = () => (
   <Box sx={{ p: 3 }}>
-    <Typography variant="h6" sx={{ fontWeight: 600, mb: 2 }}>
+    <Typography variant="h5" sx={{ fontWeight: 600, mb: 2 }}>
       Master Data
     </Typography>
 
