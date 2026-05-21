@@ -1,0 +1,98 @@
+[
+  {
+    "id": "ntf-001",
+    "type": "report",
+    "title": "Raport nou disponibil: Q1 2025 Portfolio Performance",
+    "description": "Raportul trimestrial de performanță pentru întregul portofoliu a fost generat cu succes și este disponibil pentru descărcare.",
+    "relatedEntityId": "rpt-001",
+    "relatedEntityName": "Q1 2025 Portfolio Performance Report",
+    "createdAt": "2025-04-02T09:20:00Z",
+    "status": "unread",
+    "priority": "high",
+    "ctaLabel": "Vizualizează raportul"
+  },
+  {
+    "id": "ntf-002",
+    "type": "report",
+    "title": "Raport nou disponibil: Audit Energetic Bucharest Office Tower",
+    "description": "Auditul energetic pentru Bucharest Office Tower a fost finalizat. Clasa energetică actuală este B — se recomandă revizuirea planului de reabilitare.",
+    "relatedEntityId": "rpt-002",
+    "relatedEntityName": "Bucharest Office Tower – Energy Audit 2025",
+    "createdAt": "2025-05-10T14:35:00Z",
+    "status": "unread",
+    "priority": "high",
+    "ctaLabel": "Descarcă raportul"
+  },
+  {
+    "id": "ntf-003",
+    "type": "report",
+    "title": "Raport nou disponibil: Tracker Costuri Reabilitare",
+    "description": "Tracker-ul de costuri pentru Cluj Business Center și Brașov Green Offices a fost actualizat și exportat în format Excel.",
+    "relatedEntityId": "rpt-003",
+    "relatedEntityName": "Refurbishment Cost Tracker – Cluj & Brașov",
+    "createdAt": "2025-05-18T11:05:00Z",
+    "status": "unread",
+    "priority": "medium",
+    "ctaLabel": "Descarcă Excel"
+  },
+  {
+    "id": "ntf-004",
+    "type": "report",
+    "title": "Raport de conformitate disponibil: Proprietăți Retail",
+    "description": "Raportul de conformitate pentru Timișoara Retail Park și Constanța Retail Gallery a fost generat. Sunt necesare acțiuni pentru bld-003.",
+    "relatedEntityId": "rpt-004",
+    "relatedEntityName": "Compliance Status Report – Retail Properties",
+    "createdAt": "2025-05-20T08:50:00Z",
+    "status": "unread",
+    "priority": "high",
+    "ctaLabel": "Verifică raportul"
+  },
+  {
+    "id": "ntf-005",
+    "type": "assignment",
+    "title": "Obiect nou atribuit: Iași Logistics Hub",
+    "description": "Ți-a fost atribuit managementul operațional al obiectului Iași Logistics Hub. Te rugăm să confirmi preluarea și să revizuiești documentația de proiect.",
+    "relatedEntityId": "bld-004",
+    "relatedEntityName": "Iași Logistics Hub",
+    "createdAt": "2025-05-15T10:00:00Z",
+    "status": "unread",
+    "priority": "medium",
+    "ctaLabel": "Confirmă preluarea"
+  },
+  {
+    "id": "ntf-006",
+    "type": "assignment",
+    "title": "Obiect nou atribuit: Constanța Retail Gallery",
+    "description": "Ai fost desemnat manager de obiect pentru Constanța Retail Gallery. Proiectul este în faza de avizare — termenul de depunere a documentelor este 15 iunie 2025.",
+    "relatedEntityId": "bld-006",
+    "relatedEntityName": "Constanța Retail Gallery",
+    "createdAt": "2025-05-19T09:30:00Z",
+    "status": "unread",
+    "priority": "medium",
+    "ctaLabel": "Vezi detalii obiect"
+  },
+  {
+    "id": "ntf-007",
+    "type": "project",
+    "title": "Termen depășit: Bucharest Office Tower",
+    "description": "Proiectul Bucharest Office Tower a depășit data estimată de finalizare (2024). Statusul curent este 'depășit termen'. Este necesară actualizarea planului de proiect.",
+    "relatedEntityId": "bld-001",
+    "relatedEntityName": "Bucharest Office Tower",
+    "createdAt": "2025-01-05T08:00:00Z",
+    "status": "read",
+    "priority": "high",
+    "ctaLabel": "Actualizează proiectul"
+  },
+  {
+    "id": "ntf-008",
+    "type": "project",
+    "title": "Termen depășit: Timișoara Retail Park",
+    "description": "Timișoara Retail Park nu a fost finalizat până la termenul prevăzut (2023). Costurile de reabilitare au depășit bugetul inițial cu 12%. Este necesară o decizie de escaladare.",
+    "relatedEntityId": "bld-003",
+    "relatedEntityName": "Timișoara Retail Park",
+    "createdAt": "2025-01-10T08:00:00Z",
+    "status": "unread",
+    "priority": "high",
+    "ctaLabel": "Escaladează problema"
+  }
+]
