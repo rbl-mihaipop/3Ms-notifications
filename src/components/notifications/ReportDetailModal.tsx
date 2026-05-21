@@ -18,6 +18,12 @@ import mockUsers from '@shared/mocks/users.json';
 import { useAppDispatch } from '../../app/hooks';
 import { addNotification, addToast, updateNotification } from '../../state/slices/notificationsSlice';
 
+const REPORT_PROGRESS_DELAY = 2000;
+const REPORT_READY_DELAY = 4500;
+const createId = () => (typeof crypto !== 'undefined' && crypto.randomUUID
+  ? crypto.randomUUID()
+  : `${Date.now()}-${Math.random().toString(36).slice(2)}`);
+
 interface Props {
   reportId: string | null;
   onClose: () => void;
@@ -26,18 +32,29 @@ interface Props {
 export const ReportDetailModal = ({ reportId, onClose }: Props) => {
   const dispatch = useAppDispatch();
   const timeoutIds = useRef<number[]>([]);
+  const clearTimeouts = () => {
+    timeoutIds.current.forEach((timeoutId) => window.clearTimeout(timeoutId));
+    timeoutIds.current = [];
+  };
+  const handleClose = () => {
+    clearTimeouts();
+    onClose();
+  };
 
   const report = mockReports.find((r) => r.id === reportId);
   const user = report ? mockUsers.find((u) => u.id === report.generatedByUserId) : null;
 
-  useEffect(() => () => {
-    timeoutIds.current.forEach((timeoutId) => window.clearTimeout(timeoutId));
-  }, []);
+  useEffect(() => {
+    clearTimeouts();
+    return () => {
+      clearTimeouts();
+    };
+  }, [reportId]);
 
   if (!report) return null;
 
   const handleDownload = () => {
-    const notificationId = `ntf-report-progress-${Date.now()}`;
+    const notificationId = `ntf-report-progress-${createId()}`;
     const initialDescription = `${report.title} is being generated.`;
 
     dispatch(addNotification({
@@ -59,7 +76,7 @@ export const ReportDetailModal = ({ reportId, onClose }: Props) => {
     }));
 
     dispatch(addToast({
-      id: `toast-report-start-${Date.now()}`,
+      id: `toast-report-start-${createId()}`,
       title: 'Report generation started',
       message: initialDescription,
       severity: 'info',
@@ -77,12 +94,12 @@ export const ReportDetailModal = ({ reportId, onClose }: Props) => {
       }));
 
       dispatch(addToast({
-        id: `toast-report-progress-${Date.now()}`,
+        id: `toast-report-progress-${createId()}`,
         title: 'Report generation in progress',
         message: progressDescription,
         severity: 'info',
       }));
-    }, 2000));
+    }, REPORT_PROGRESS_DELAY));
 
     timeoutIds.current.push(window.setTimeout(() => {
       const readyDescription = `${report.title} is ready to download.`;
@@ -99,23 +116,23 @@ export const ReportDetailModal = ({ reportId, onClose }: Props) => {
       }));
 
       dispatch(addToast({
-        id: `toast-report-ready-${Date.now()}`,
+        id: `toast-report-ready-${createId()}`,
         title: 'Report ready',
         message: readyDescription,
         severity: 'success',
       }));
-    }, 4500));
+    }, REPORT_READY_DELAY));
   };
 
   return (
     <>
-      <Dialog open={!!reportId} onClose={onClose} maxWidth="sm" fullWidth>
+      <Dialog open={!!reportId} onClose={handleClose} maxWidth="sm" fullWidth>
         <DialogTitle sx={{ pr: 6 }}>
           <Typography fontWeight={600} fontSize={16}>
             {report.title}
           </Typography>
           <IconButton
-            onClick={onClose}
+            onClick={handleClose}
             size="small"
             sx={{ position: 'absolute', right: 12, top: 12, color: 'text.secondary' }}
           >
@@ -185,7 +202,7 @@ export const ReportDetailModal = ({ reportId, onClose }: Props) => {
         <Divider />
 
         <DialogActions sx={{ px: 3, py: 2 }}>
-          <Button onClick={onClose} color="inherit" size="small">
+            <Button onClick={handleClose} color="inherit" size="small">
             Close
           </Button>
           <Button

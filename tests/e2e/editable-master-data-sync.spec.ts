@@ -15,7 +15,7 @@ test.describe('Editable master data + synchronized notifications', () => {
     await expect(page.getByRole('cell', { name: 'Mihaela Popescu' }).first()).toBeVisible();
     await expect(page.getByRole('cell', { name: 'Elena Dumitrescu' }).first()).toBeVisible();
 
-    await page.locator('[role="button"]').filter({ hasText: 'Notifications' }).first().click();
+    await page.getByRole('button', { name: /notifications/i }).first().click();
     await page.getByRole('tab', { name: /assignments/i }).click();
     await expect(page.getByRole('tab', { name: /assignments/i })).toContainText('6');
     await expect(page.getByText('Object assignment updated').first()).toBeVisible();

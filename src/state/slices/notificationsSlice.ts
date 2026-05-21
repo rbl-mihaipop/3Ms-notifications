@@ -19,7 +19,7 @@ interface NotificationsState {
 
 const initialState: NotificationsState = {
   items: mockNotifications as Notification[],
-  activeTab: 'action_required',
+  activeTab: 'all',
   toasts: [],
 };
 

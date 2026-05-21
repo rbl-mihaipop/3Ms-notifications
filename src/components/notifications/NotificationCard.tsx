@@ -2,7 +2,12 @@ import { Box, Typography, Chip, IconButton, Link } from '@mui/material';
 import LinkIcon from '@mui/icons-material/Link';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import type { Notification } from '@shared/types/mockDataTypes';
-import { CATEGORY_COLORS, STATUS_BADGE_COLORS, SUBTYPE_LABELS } from '../../theme/theme';
+import {
+  CATEGORY_COLORS,
+  STATUS_BADGE_COLORS,
+  STATUS_BADGE_LABELS,
+  SUBTYPE_LABELS,
+} from '../../theme/theme';
 import { useAppDispatch } from '../../app/hooks';
 import { markAsRead } from '../../state/slices/notificationsSlice';
 
@@ -94,7 +99,7 @@ export const NotificationCard = ({ notification, onCtaClick }: Props) => {
             }}
           />
           <Chip
-            label={notification.statusBadge.replace('_', ' ')}
+            label={STATUS_BADGE_LABELS[notification.statusBadge]}
             size="small"
             sx={{
               bgcolor: statusBadgeColors.bg,

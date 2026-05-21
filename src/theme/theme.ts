@@ -57,3 +57,9 @@ export const STATUS_BADGE_COLORS = {
   in_progress: { bg: '#FEF3C7', color: '#92400E' },
   resolved: { bg: '#D1FAE5', color: '#065F46' },
 } as const;
+
+export const STATUS_BADGE_LABELS = {
+  new: 'new',
+  in_progress: 'in progress',
+  resolved: 'resolved',
+} as const;

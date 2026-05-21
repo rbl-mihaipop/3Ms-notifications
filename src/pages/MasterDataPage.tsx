@@ -26,6 +26,9 @@ import { selectBuildings, updateBuildingManagers } from '../state/slices/masterD
 import { addNotification, addToast } from '../state/slices/notificationsSlice';
 
 const formatNumber = (value: number) => value.toLocaleString('ro-RO');
+const createId = () => (typeof crypto !== 'undefined' && crypto.randomUUID
+  ? crypto.randomUUID()
+  : `${Date.now()}-${Math.random().toString(36).slice(2)}`);
 
 export const MasterDataPage = () => {
   const dispatch = useAppDispatch();
@@ -66,9 +69,10 @@ export const MasterDataPage = () => {
   ) => {
     const timestamp = new Date().toISOString();
     const message = `${building.name} was reassigned from ${previousValue} to ${newValue} as ${field}.`;
+    const fieldToken = field.replaceAll(' ', '-').toLowerCase();
 
     dispatch(addNotification({
-      id: `ntf-${Date.now()}-${field.replace(' ', '-').toLowerCase()}`,
+      id: `ntf-${building.id}-${fieldToken}-${createId()}`,
       type: 'assignment',
       category: 'fyi',
       subtype: 'object_assigned',
@@ -89,7 +93,7 @@ export const MasterDataPage = () => {
     }));
 
     dispatch(addToast({
-      id: `toast-${Date.now()}-${field.replace(' ', '-').toLowerCase()}`,
+      id: `toast-${building.id}-${fieldToken}-${createId()}`,
       title: 'Object assignment updated',
       message,
       severity: 'info',

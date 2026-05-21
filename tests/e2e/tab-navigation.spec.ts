@@ -5,8 +5,8 @@ test.describe('Tab navigation and content', () => {
     await page.goto('/notifications');
   });
 
-  test('default tab is Projects', async ({ page }) => {
-    await expect(page.getByRole('tab', { name: /projects/i })).toHaveAttribute('aria-selected', 'true');
+  test('default tab is All', async ({ page }) => {
+    await expect(page.getByRole('tab', { name: /all/i })).toHaveAttribute('aria-selected', 'true');
   });
 
   test('tab count badges show correct totals', async ({ page }) => {
@@ -17,6 +17,7 @@ test.describe('Tab navigation and content', () => {
   });
 
   test('Projects tab shows 3 notification cards', async ({ page }) => {
+    await page.getByRole('tab', { name: /projects/i }).click();
     await expect(page.getByTestId('notification-card')).toHaveCount(3);
   });
 
@@ -54,11 +55,13 @@ test.describe('Tab navigation and content', () => {
 
   test('TODAY date group is visible on Projects tab', async ({ page }) => {
     // ntf-008 was created 2026-05-21, so it falls under TODAY
+    await page.getByRole('tab', { name: /projects/i }).click();
     await expect(page.getByText(/today/i).first()).toBeVisible();
   });
 
   test('YESTERDAY date group is visible on Projects tab', async ({ page }) => {
     // ntf-009 was created 2026-05-20
+    await page.getByRole('tab', { name: /projects/i }).click();
     await expect(page.getByText('YESTERDAY')).toBeVisible();
   });
 
