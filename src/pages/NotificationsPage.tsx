@@ -22,9 +22,13 @@ import {
   setTab,
   markAllAsRead,
   selectActiveTab,
+  selectCountsByDate,
+  selectDateFilter,
+  setDateFilter,
 } from '../state/slices/notificationsSlice';
 import { BRAND_PURPLE, TEXT_PRIMARY, TEXT_SECONDARY, BORDER_COLOR } from '../theme/theme';
 import { NotificationCard } from '../components/notifications/NotificationCard';
+import { NotificationCalendar } from '../components/notifications/NotificationCalendar';
 import { ReportDetailModal } from '../components/notifications/ReportDetailModal';
 
 const TABS: Array<{ value: NotificationCategory; label: string }> = [
@@ -86,7 +90,17 @@ export const NotificationsPage = () => {
   const items = useAppSelector(selectItemsByTab);
   const counts = useAppSelector(selectTabCounts);
   const unreadCount = useAppSelector(selectUnreadCount);
+  const countsByDate = useAppSelector(selectCountsByDate);
+  const dateFilter = useAppSelector(selectDateFilter);
   const [modalReportId, setModalReportId] = useState<string | null>(null);
+
+  const dateFilterLabel = dateFilter
+    ? new Date(`${dateFilter}T00:00:00`).toLocaleDateString('en-GB', {
+        day: '2-digit',
+        month: 'long',
+        year: 'numeric',
+      })
+    : null;
 
   const handleCtaClick = (notification: Notification) => {
     if (notification.category === 'new_reports') {
@@ -162,6 +176,10 @@ export const NotificationsPage = () => {
         </Tabs>
       </Box>
 
+      {/* Body: list (left) + calendar (right) */}
+      <Box sx={{ display: 'flex', flex: 1, minHeight: 0 }}>
+        <Box sx={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column' }}>
+
       {/* Header */}
       <Box sx={{ px: 3, pt: 2.25, pb: 2, borderBottom: `1px solid ${BORDER_COLOR}` }}>
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
@@ -199,6 +217,36 @@ export const NotificationsPage = () => {
         </Box>
       </Box>
 
+      {/* Active date-filter banner */}
+      {dateFilter && (
+        <Box
+          data-testid="calendar-active-filter-banner"
+          sx={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            px: 3,
+            py: 1,
+            bgcolor: 'rgba(128,51,128,0.06)',
+            borderBottom: `1px solid ${BORDER_COLOR}`,
+          }}
+        >
+          <Typography sx={{ fontSize: 13, color: TEXT_PRIMARY }}>
+            Showing notifications on <strong>{dateFilterLabel}</strong>
+          </Typography>
+          <Button
+            size="small"
+            variant="text"
+            color="primary"
+            data-testid="calendar-clear-filter"
+            onClick={() => dispatch(setDateFilter(null))}
+            sx={{ fontSize: 13, fontWeight: 600, textTransform: 'uppercase', px: 1 }}
+          >
+            Clear filter
+          </Button>
+        </Box>
+      )}
+
       {/* Info banner for action_required */}
       {activeTab === 'action_required' && (
         <Alert
@@ -224,7 +272,9 @@ export const NotificationsPage = () => {
         {items.length === 0 ? (
           <Box sx={{ textAlign: 'center', py: 8 }}>
             <Typography color="text.disabled" fontSize={13}>
-              No notifications in this category
+              {dateFilter
+                ? `No notifications on ${dateFilterLabel} in this category`
+                : 'No notifications in this category'}
             </Typography>
           </Box>
         ) : (
@@ -271,6 +321,27 @@ export const NotificationsPage = () => {
             ))}
           </>
         )}
+      </Box>
+
+        </Box>
+
+        {/* Calendar side panel */}
+        <Box
+          data-testid="calendar-side-panel"
+          sx={{
+            width: 312,
+            flexShrink: 0,
+            borderLeft: `1px solid ${BORDER_COLOR}`,
+            p: 2,
+            display: { xs: 'none', md: 'block' },
+          }}
+        >
+          <NotificationCalendar
+            countsByDate={countsByDate}
+            selectedDate={dateFilter}
+            onSelectDate={(date) => dispatch(setDateFilter(date))}
+          />
+        </Box>
       </Box>
 
       <ReportDetailModal reportId={modalReportId} onClose={() => setModalReportId(null)} />
