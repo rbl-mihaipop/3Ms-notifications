@@ -1,0 +1,19 @@
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "if": "Bash(git push *)",
+            "shell": "powershell",
+            "timeout": 120,
+            "statusMessage": "Checking push target and running Playwright tests...",
+            "command": "$obj = $input | Out-String | ConvertFrom-Json; $cmd = $obj.tool_input.command; if ($cmd -match 'git push.+\\b(main|master)\\b') { @{ hookSpecificOutput = @{ hookEventName = 'PreToolUse'; permissionDecision = 'deny'; permissionDecisionReason = 'Direct push to main/master is blocked. Commit to a feature branch and open a PR for review — tests must pass before it can be merged.' } } | ConvertTo-Json -Compress; exit 0 }; Set-Location 'C:\\Users\\mirel.palii\\repos\\3Ms-notifications'; $result = npx playwright test --reporter=list 2>&1; $exitCode = $LASTEXITCODE; Write-Output $result; if ($exitCode -ne 0) { @{ continue = $false; stopReason = 'Playwright tests failed. Fix all failing tests before pushing.' } | ConvertTo-Json -Compress }"
+          }
+        ]
+      }
+    ]
+  }
+}
