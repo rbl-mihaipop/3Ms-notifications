@@ -1,10 +1,18 @@
-import { Box, Typography, Chip, IconButton, Link } from '@mui/material';
+import { useState } from 'react';
+import { Box, Typography, Chip, IconButton, Link, Menu, MenuItem, ListItemIcon, ListItemText } from '@mui/material';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import EastIcon from '@mui/icons-material/East';
+import DoneIcon from '@mui/icons-material/Done';
+import CloseIcon from '@mui/icons-material/Close';
+import DownloadOutlinedIcon from '@mui/icons-material/DownloadOutlined';
+import SnoozeIcon from '@mui/icons-material/Snooze';
+import EventIcon from '@mui/icons-material/Event';
+import PushPinOutlinedIcon from '@mui/icons-material/PushPinOutlined';
+import FlagOutlinedIcon from '@mui/icons-material/FlagOutlined';
 import type { Notification } from '@shared/types/mockDataTypes';
 import { BRAND_PURPLE, TEXT_PRIMARY, TEXT_SECONDARY, BORDER_COLOR, SUBTYPE_LABELS, SUBTYPE_PILL_COLORS } from '../../theme/theme';
 import { useAppDispatch } from '../../app/hooks';
-import { markAsRead } from '../../state/slices/notificationsSlice';
+import { markAsRead, dismiss, togglePin } from '../../state/slices/notificationsSlice';
 
 interface Props {
   notification: Notification;
@@ -24,15 +32,12 @@ const daysOverdue = (expectedCloseDate: string) => {
 
 export const NotificationCard = ({ notification, onCtaClick }: Props) => {
   const dispatch = useAppDispatch();
+  const [menuAnchor, setMenuAnchor] = useState<null | HTMLElement>(null);
+
   const isUnread = notification.status === 'unread';
   const subtypeLabel = SUBTYPE_LABELS[notification.subtype];
-  const pill = SUBTYPE_PILL_COLORS[notification.subtype] ?? {
-    bg: '#E5E7EB',
-    color: '#374151',
-  };
-  const overdue = notification.expectedCloseDate
-    ? daysOverdue(notification.expectedCloseDate)
-    : null;
+  const pill = SUBTYPE_PILL_COLORS[notification.subtype] ?? { bg: '#E5E7EB', color: TEXT_SECONDARY };
+  const overdue = notification.expectedCloseDate ? daysOverdue(notification.expectedCloseDate) : null;
 
   const handleCardClick = () => {
     if (isUnread) dispatch(markAsRead(notification.id));
@@ -42,6 +47,41 @@ export const NotificationCard = ({ notification, onCtaClick }: Props) => {
     e.stopPropagation();
     dispatch(markAsRead(notification.id));
     onCtaClick?.(notification);
+  };
+
+  const handleMenuOpen = (e: React.MouseEvent<HTMLElement>) => {
+    e.stopPropagation();
+    setMenuAnchor(e.currentTarget);
+  };
+
+  const handleMenuClose = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setMenuAnchor(null);
+  };
+
+  const handleMarkAsRead = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    dispatch(markAsRead(notification.id));
+    setMenuAnchor(null);
+  };
+
+  const handleDismiss = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    dispatch(dismiss(notification.id));
+    setMenuAnchor(null);
+  };
+
+  const handleDownload = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    dispatch(markAsRead(notification.id));
+    onCtaClick?.(notification);
+    setMenuAnchor(null);
+  };
+
+  const handleTogglePin = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    dispatch(togglePin(notification.id));
+    setMenuAnchor(null);
   };
 
   return (
@@ -101,22 +141,20 @@ export const NotificationCard = ({ notification, onCtaClick }: Props) => {
 
         {notification.valueChange && (
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75, my: 0.75 }}>
-            <Typography sx={{ fontSize: 12, color: '#6B7280', fontWeight: 500 }}>
+            <Typography sx={{ fontSize: 12, color: TEXT_SECONDARY, fontWeight: 500 }}>
               {notification.valueChange.label}
             </Typography>
-            <Box component="span" sx={{ bgcolor: '#F3F4F6', color: '#6B7280', fontSize: 12, fontWeight: 600, px: 0.75, py: 0.25, borderRadius: 0.75, textDecoration: 'line-through' }}>
+            <Box component="span" sx={{ bgcolor: '#F3F4F6', color: TEXT_SECONDARY, fontSize: 12, fontWeight: 600, px: 0.75, py: 0.25, borderRadius: 0.75, textDecoration: 'line-through' }}>
               {notification.valueChange.from}
             </Box>
-            <EastIcon sx={{ fontSize: 13, color: '#9CA3AF' }} />
-            <Box component="span" sx={{ bgcolor: '#EDE9FE', color: BRAND_PURPLE, fontSize: 12, fontWeight: 700, px: 0.75, py: 0.25, borderRadius: 0.75 }}>
+            <EastIcon sx={{ fontSize: 13, color: TEXT_SECONDARY }} />
+            <Box component="span" sx={{ bgcolor: 'rgba(128,51,128,0.1)', color: BRAND_PURPLE, fontSize: 12, fontWeight: 700, px: 0.75, py: 0.25, borderRadius: 0.75 }}>
               {notification.valueChange.to}
             </Box>
           </Box>
         )}
 
-        <Typography
-          sx={{ fontSize: 12, color: TEXT_SECONDARY, lineHeight: '20px' }}
-        >
+        <Typography sx={{ fontSize: 12, color: TEXT_SECONDARY, lineHeight: '20px' }}>
           {notification.description}
         </Typography>
 
@@ -160,14 +198,103 @@ export const NotificationCard = ({ notification, onCtaClick }: Props) => {
         {notification.ctaLabel} →
       </Link>
 
-      {/* Kebab menu */}
+      {/* Kebab menu button */}
       <IconButton
         size="small"
-        onClick={(e) => e.stopPropagation()}
+        onClick={handleMenuOpen}
         sx={{ color: TEXT_SECONDARY, p: 0.5, mt: 0.1, flexShrink: 0 }}
       >
         <MoreVertIcon sx={{ fontSize: 18 }} />
       </IconButton>
+
+      {/* Dropdown menu */}
+      <Menu
+        anchorEl={menuAnchor}
+        open={Boolean(menuAnchor)}
+        onClose={handleMenuClose}
+        onClick={(e) => e.stopPropagation()}
+        slotProps={{
+          paper: {
+            sx: {
+              minWidth: 160,
+              boxShadow: 'rgba(0,0,0,0.12) 0px 4px 16px',
+              borderRadius: 1,
+              border: `1px solid ${BORDER_COLOR}`,
+            },
+          },
+        }}
+        transformOrigin={{ horizontal: 'right', vertical: 'top' }}
+        anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
+      >
+        {notification.category === 'new_reports' && (
+          <MenuItem onClick={handleDownload} dense>
+            <ListItemIcon sx={{ minWidth: 32 }}>
+              <DownloadOutlinedIcon sx={{ fontSize: 16, color: BRAND_PURPLE }} />
+            </ListItemIcon>
+            <ListItemText primaryTypographyProps={{ fontSize: 14, color: TEXT_PRIMARY }}>
+              Download
+            </ListItemText>
+          </MenuItem>
+        )}
+
+        {notification.category === 'action_required' && [
+          <MenuItem key="snooze3" onClick={handleMenuClose} dense>
+            <ListItemIcon sx={{ minWidth: 32 }}>
+              <SnoozeIcon sx={{ fontSize: 16, color: TEXT_SECONDARY }} />
+            </ListItemIcon>
+            <ListItemText primaryTypographyProps={{ fontSize: 14, color: TEXT_PRIMARY }}>
+              Snooze for 3 days
+            </ListItemText>
+          </MenuItem>,
+          <MenuItem key="snoozeClose" onClick={handleMenuClose} dense>
+            <ListItemIcon sx={{ minWidth: 32 }}>
+              <EventIcon sx={{ fontSize: 16, color: TEXT_SECONDARY }} />
+            </ListItemIcon>
+            <ListItemText primaryTypographyProps={{ fontSize: 14, color: TEXT_PRIMARY }}>
+              Snooze until closing date
+            </ListItemText>
+          </MenuItem>,
+          <MenuItem key="pin" onClick={handleTogglePin} dense>
+            <ListItemIcon sx={{ minWidth: 32 }}>
+              <PushPinOutlinedIcon sx={{ fontSize: 16, color: TEXT_SECONDARY }} />
+            </ListItemIcon>
+            <ListItemText primaryTypographyProps={{ fontSize: 14, color: TEXT_PRIMARY }}>
+              {notification.pinned ? 'Unpin' : 'Pin'}
+            </ListItemText>
+          </MenuItem>,
+        ]}
+
+        <MenuItem onClick={handleMarkAsRead} disabled={!isUnread} dense>
+          <ListItemIcon sx={{ minWidth: 32 }}>
+            <DoneIcon sx={{ fontSize: 16, color: BRAND_PURPLE }} />
+          </ListItemIcon>
+          <ListItemText primaryTypographyProps={{ fontSize: 14, color: TEXT_PRIMARY }}>
+            Mark as read
+          </ListItemText>
+        </MenuItem>
+
+        {notification.category === 'action_required' && (
+          <MenuItem onClick={handleMenuClose} dense>
+            <ListItemIcon sx={{ minWidth: 32 }}>
+              <FlagOutlinedIcon sx={{ fontSize: 16, color: TEXT_SECONDARY }} />
+            </ListItemIcon>
+            <ListItemText primaryTypographyProps={{ fontSize: 14, color: TEXT_PRIMARY }}>
+              Report as incorrect
+            </ListItemText>
+          </MenuItem>
+        )}
+
+        {notification.category !== 'action_required' && (
+          <MenuItem onClick={handleDismiss} dense>
+            <ListItemIcon sx={{ minWidth: 32 }}>
+              <CloseIcon sx={{ fontSize: 16, color: TEXT_SECONDARY }} />
+            </ListItemIcon>
+            <ListItemText primaryTypographyProps={{ fontSize: 14, color: TEXT_PRIMARY }}>
+              Dismiss notification
+            </ListItemText>
+          </MenuItem>
+        )}
+      </Menu>
     </Box>
   );
 };
