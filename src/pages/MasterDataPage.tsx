@@ -35,7 +35,7 @@ export const MasterDataPage = () => (
             <TableCell>City</TableCell>
             <TableCell>Country</TableCell>
             <TableCell>Type</TableCell>
-            <TableCell>Energy class</TableCell>
+            <TableCell>Energy Class</TableCell>
             <TableCell align="right">Total area (sqm)</TableCell>
             <TableCell align="right">Refurbishment cost (EUR)</TableCell>
             <TableCell align="right">Project start year</TableCell>
