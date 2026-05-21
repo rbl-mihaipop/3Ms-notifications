@@ -219,10 +219,7 @@ export const NotificationCard = ({ notification, onCtaClick }: Props) => {
         {notification.ctaLabel} →
       </Link>
 
-<<<<<<< HEAD
-=======
       {/* Kebab menu button */}
->>>>>>> aa9ae7d (more actions)
       <IconButton
         size="small"
         onClick={handleMenuOpen}
