@@ -1,9 +1,9 @@
 import { test, expect } from '@playwright/test';
 
-test.describe('Updates (FYI) tab', () => {
+test.describe('Assignments (FYI) tab', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/notifications');
-    await page.getByRole('tab', { name: /updates/i }).click();
+    await page.getByRole('tab', { name: /assignments/i }).click();
   });
 
   test('shows 4 notification cards', async ({ page }) => {
@@ -54,7 +54,7 @@ test.describe('Updates (FYI) tab', () => {
     await expect(page.getByText('YESTERDAY')).toBeVisible();
   });
 
-  test('no amber warning banner on Updates tab', async ({ page }) => {
+  test('no amber warning banner on Assignments tab', async ({ page }) => {
     await expect(page.getByText(/clear automatically/i)).not.toBeVisible();
   });
 });

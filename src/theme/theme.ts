@@ -47,6 +47,7 @@ export const SUBTYPE_LABELS = {
   past_closing_date: 'PAST CLOSING DATE',
   phase_transition: 'PHASE TRANSITION',
   parameter_change: 'PARAMETER CHANGE',
+  report_generation: 'REPORT STATUS',
   report_ready: 'REPORT READY',
   object_assigned: 'NEWLY ASSIGNED',
 } as const;

@@ -3,7 +3,7 @@ import { test, expect } from '@playwright/test';
 test.describe('New Reports — View Report modal', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/notifications');
-    await page.getByRole('tab', { name: /new reports/i }).click();
+    await page.getByRole('tab', { name: /reports/i }).click();
   });
 
   test('New Reports tab shows REPORT READY notifications', async ({ page }) => {
@@ -35,11 +35,11 @@ test.describe('New Reports — View Report modal', () => {
     await expect(dialog).not.toBeVisible();
   });
 
-  test('Download button triggers success snackbar', async ({ page }) => {
+  test('Download button triggers report generation toast', async ({ page }) => {
     await page.getByTestId('notification-cta').first().click();
     const dialog = page.getByRole('dialog');
     await dialog.getByRole('button', { name: /download/i }).click();
-    await expect(page.getByText(/download started/i)).toBeVisible();
+    await expect(page.getByText('Report generation started').first()).toBeVisible();
   });
 
   test('opening report marks notification as read', async ({ page }) => {

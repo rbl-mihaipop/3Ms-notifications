@@ -5,35 +5,36 @@ test.describe('Tab navigation and content', () => {
     await page.goto('/notifications');
   });
 
-  test('default tab is Action Required', async ({ page }) => {
-    await expect(page.getByRole('tab', { name: /action required/i })).toHaveAttribute('aria-selected', 'true');
+  test('default tab is Projects', async ({ page }) => {
+    await expect(page.getByRole('tab', { name: /projects/i })).toHaveAttribute('aria-selected', 'true');
   });
 
   test('tab count badges show correct totals', async ({ page }) => {
-    await expect(page.getByRole('tab', { name: /action required/i })).toContainText('3');
-    await expect(page.getByRole('tab', { name: /new reports/i })).toContainText('3');
-    await expect(page.getByRole('tab', { name: /updates/i })).toContainText('4');
+    await expect(page.getByRole('tab', { name: /all/i })).toContainText('10');
+    await expect(page.getByRole('tab', { name: /projects/i })).toContainText('3');
+    await expect(page.getByRole('tab', { name: /reports/i })).toContainText('3');
+    await expect(page.getByRole('tab', { name: /assignments/i })).toContainText('4');
   });
 
-  test('Action Required tab shows 3 notification cards', async ({ page }) => {
+  test('Projects tab shows 3 notification cards', async ({ page }) => {
     await expect(page.getByTestId('notification-card')).toHaveCount(3);
   });
 
-  test('New Reports tab shows 3 notification cards', async ({ page }) => {
-    await page.getByRole('tab', { name: /new reports/i }).click();
+  test('Reports tab shows 3 notification cards', async ({ page }) => {
+    await page.getByRole('tab', { name: /reports/i }).click();
     await expect(page.getByTestId('notification-card')).toHaveCount(3);
   });
 
-  test('Updates tab shows 4 notification cards', async ({ page }) => {
-    await page.getByRole('tab', { name: /updates/i }).click();
+  test('Assignments tab shows 4 notification cards', async ({ page }) => {
+    await page.getByRole('tab', { name: /assignments/i }).click();
     await expect(page.getByTestId('notification-card')).toHaveCount(4);
   });
 
   test('switching tabs swaps CTA labels', async ({ page }) => {
-    await page.getByRole('tab', { name: /new reports/i }).click();
+    await page.getByRole('tab', { name: /reports/i }).click();
     await expect(page.getByTestId('notification-cta').first()).toContainText(/view report/i);
 
-    await page.getByRole('tab', { name: /action required/i }).click();
+    await page.getByRole('tab', { name: /projects/i }).click();
     await expect(page.getByTestId('notification-cta').first()).toContainText(/go to project/i);
   });
 
@@ -51,23 +52,23 @@ test.describe('Tab navigation and content', () => {
     await expect(page.getByRole('button', { name: /mark all as read/i })).not.toBeVisible();
   });
 
-  test('TODAY date group is visible on Action Required tab', async ({ page }) => {
+  test('TODAY date group is visible on Projects tab', async ({ page }) => {
     // ntf-008 was created 2026-05-21, so it falls under TODAY
     await expect(page.getByText(/today/i).first()).toBeVisible();
   });
 
-  test('YESTERDAY date group is visible on Action Required tab', async ({ page }) => {
+  test('YESTERDAY date group is visible on Projects tab', async ({ page }) => {
     // ntf-009 was created 2026-05-20
     await expect(page.getByText('YESTERDAY')).toBeVisible();
   });
 
-  test('amber banner is hidden on New Reports tab', async ({ page }) => {
-    await page.getByRole('tab', { name: /new reports/i }).click();
+  test('amber banner is hidden on Reports tab', async ({ page }) => {
+    await page.getByRole('tab', { name: /reports/i }).click();
     await expect(page.getByText(/clear automatically/i)).not.toBeVisible();
   });
 
-  test('amber banner is hidden on Updates tab', async ({ page }) => {
-    await page.getByRole('tab', { name: /updates/i }).click();
+  test('amber banner is hidden on Assignments tab', async ({ page }) => {
+    await page.getByRole('tab', { name: /assignments/i }).click();
     await expect(page.getByText(/clear automatically/i)).not.toBeVisible();
   });
 });

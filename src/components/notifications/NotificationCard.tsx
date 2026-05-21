@@ -2,7 +2,7 @@ import { Box, Typography, Chip, IconButton, Link } from '@mui/material';
 import LinkIcon from '@mui/icons-material/Link';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import type { Notification } from '@shared/types/mockDataTypes';
-import { CATEGORY_COLORS, SUBTYPE_LABELS } from '../../theme/theme';
+import { CATEGORY_COLORS, STATUS_BADGE_COLORS, SUBTYPE_LABELS } from '../../theme/theme';
 import { useAppDispatch } from '../../app/hooks';
 import { markAsRead } from '../../state/slices/notificationsSlice';
 
@@ -32,6 +32,7 @@ export const NotificationCard = ({ notification, onCtaClick }: Props) => {
   const isUnread = notification.status === 'unread';
   const categoryColor = CATEGORY_COLORS[notification.category];
   const subtypeLabel = SUBTYPE_LABELS[notification.subtype];
+  const statusBadgeColors = STATUS_BADGE_COLORS[notification.statusBadge];
   const overdue = notification.expectedCloseDate
     ? daysOverdue(notification.expectedCloseDate)
     : null;
@@ -90,6 +91,18 @@ export const NotificationCard = ({ notification, onCtaClick }: Props) => {
               height: 20,
               letterSpacing: 0.3,
               flexShrink: 0,
+            }}
+          />
+          <Chip
+            label={notification.statusBadge.replace('_', ' ')}
+            size="small"
+            sx={{
+              bgcolor: statusBadgeColors.bg,
+              color: statusBadgeColors.color,
+              fontWeight: 600,
+              fontSize: 10,
+              height: 20,
+              textTransform: 'capitalize',
             }}
           />
           <Typography

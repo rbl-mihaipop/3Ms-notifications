@@ -27,16 +27,18 @@ import { CATEGORY_COLORS } from '../theme/theme';
 import { NotificationCard } from '../components/notifications/NotificationCard';
 import { ReportDetailModal } from '../components/notifications/ReportDetailModal';
 
-const TABS: Array<{ value: NotificationCategory; label: string }> = [
-  { value: 'action_required', label: 'Action Required' },
-  { value: 'new_reports', label: 'New Reports' },
-  { value: 'fyi', label: 'Updates' },
+const TABS: Array<{ value: NotificationCategory | 'all'; label: string }> = [
+  { value: 'all', label: 'All' },
+  { value: 'new_reports', label: 'Reports' },
+  { value: 'fyi', label: 'Assignments' },
+  { value: 'action_required', label: 'Projects' },
 ];
 
-const TAB_DESCRIPTIONS: Record<NotificationCategory, string> = {
+const TAB_DESCRIPTIONS: Record<NotificationCategory | 'all', string> = {
+  all: 'All notifications across reports, assignments, and projects',
   action_required: 'Items where you need to take action in the project itself',
-  new_reports: 'Reports that have been generated and are ready to view',
-  fyi: 'Updates and changes to objects assigned to you',
+  new_reports: 'Report notifications and generation status updates',
+  fyi: 'Assignment updates for object/building manager changes',
 };
 
 const groupByDate = (items: Notification[]) => {

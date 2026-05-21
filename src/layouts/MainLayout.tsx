@@ -17,6 +17,7 @@ import SettingsOutlinedIcon from '@mui/icons-material/SettingsOutlined';
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
 import { useAppSelector } from '../app/hooks';
 import { selectUnreadCount } from '../state/slices/notificationsSlice';
+import { ToastNotifications } from '../components/notifications/ToastNotifications';
 
 const SIDEBAR_WIDTH = 232;
 
@@ -169,6 +170,7 @@ export const MainLayout = () => {
           <Outlet />
         </Box>
       </Box>
+      <ToastNotifications />
     </Box>
   );
 };
