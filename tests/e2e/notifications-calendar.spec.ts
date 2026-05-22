@@ -109,15 +109,10 @@ test.describe('Notification calendar side panel', () => {
     expect(label).toContain(String(currentYear));
   });
 
-  test('filter applied on Updates persists when switching tabs (filter is global)', async ({ page }) => {
+  test('filter applied on Updates persists when switching to Action Required (filter is global)', async ({ page }) => {
     await page.getByRole('tab', { name: /updates/i }).click();
     await page.getByTestId('calendar-day-2026-05-20').click();
     await expect(page.getByTestId('notification-card')).toHaveCount(2);
-
-    await page.getByRole('tab', { name: /new reports/i }).click();
-    // New Reports has 1 item dated 2026-05-20 (Compliance Status Report)
-    await expect(page.getByTestId('notification-card')).toHaveCount(1);
-    await expect(page.getByText(/compliance status report/i)).toBeVisible();
 
     await page.getByRole('tab', { name: /action required/i }).click();
     // Action Required has 1 item dated 2026-05-20 (Brașov Green Offices)
@@ -125,13 +120,26 @@ test.describe('Notification calendar side panel', () => {
     await expect(page.getByText(/brașov green offices/i)).toBeVisible();
   });
 
-  test('tab counts in the tab strip remain at their full totals regardless of date filter', async ({ page }) => {
+  test('date filter does not apply to the New Reports drawer (drawer shows all reports)', async ({ page }) => {
+    // After PR #9 the New Reports drawer is independent of the calendar filter and
+    // always shows the full list of 3 reports. Pin this behaviour so a future
+    // change is an explicit decision.
+    await page.getByTestId('calendar-day-2026-05-21').click();
+    await expect(page.getByTestId('calendar-active-filter-banner')).toBeVisible();
+
+    await page.getByTestId('new-reports-button').click();
+    const drawer = page.getByTestId('new-reports-drawer');
+    await expect(drawer.getByTestId('notification-card')).toHaveCount(3);
+  });
+
+  test('tab counts and the New Reports button count remain at full totals regardless of date filter', async ({ page }) => {
     await page.getByTestId('calendar-day-2026-05-21').click();
 
-    // Tab badges reflect total per category, NOT the filtered subset
+    // Tab badges and the New Reports drawer button reflect per-category totals,
+    // NOT the filtered subset
     await expect(page.getByRole('tab', { name: /action required/i })).toContainText('3');
-    await expect(page.getByRole('tab', { name: /new reports/i })).toContainText('3');
     await expect(page.getByRole('tab', { name: /updates/i })).toContainText('4');
+    await expect(page.getByTestId('new-reports-button')).toContainText('3');
   });
 
   test('sidebar unread badge stays at total unread (date filter does not change it)', async ({ page }) => {

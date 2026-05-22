@@ -31,8 +31,10 @@ test.describe('Notification card action menu (kebab dropdown)', () => {
   });
 
   test('New Reports dropdown exposes Download / Mark as read / Dismiss notification in order', async ({ page }) => {
-    await page.getByRole('tab', { name: /new reports/i }).click();
-    const firstCard = page.getByTestId('notification-card').first();
+    // New Reports moved from a tab to a right-side drawer (PR #9)
+    await page.getByTestId('new-reports-button').click();
+    const drawer = page.getByTestId('new-reports-drawer');
+    const firstCard = drawer.getByTestId('notification-card').first();
     await firstCard.getByTestId('notification-kebab').click();
 
     const items = page.getByRole('menuitem');
@@ -149,11 +151,12 @@ test.describe('Mark all as read', () => {
     await expect(page.getByRole('button', { name: /mark all as read/i })).not.toBeVisible();
   });
 
-  test('flips every notification card to read across all three tabs', async ({ page }) => {
+  test('flips every notification card to read across both tabs and the New Reports drawer', async ({ page }) => {
     await page.goto('/notifications');
     await page.getByRole('button', { name: /mark all as read/i }).click();
 
-    for (const tab of [/action required/i, /new reports/i, /updates/i]) {
+    // After PR #9, New Reports is a drawer; only Action Required and Updates remain as tabs
+    for (const tab of [/action required/i, /updates/i]) {
       await page.getByRole('tab', { name: tab }).click();
       const dots = page.getByTestId('notification-unread-dot');
       const count = await dots.count();
@@ -162,6 +165,17 @@ test.describe('Mark all as read', () => {
         // Every unread-dot element on this tab must report data-unread="false"
         await expect(dots.nth(i)).toHaveAttribute('data-unread', 'false');
       }
+    }
+
+    // Verify the same in the New Reports drawer
+    await page.getByTestId('new-reports-button').click();
+    const drawer = page.getByTestId('new-reports-drawer');
+    const drawerDots = drawer.getByTestId('notification-unread-dot');
+    const drawerCount = await drawerDots.count();
+    expect(drawerCount).toBeGreaterThan(0);
+    for (let i = 0; i < drawerCount; i++) {
+      // Index i is the i-th notification card in the drawer
+      await expect(drawerDots.nth(i)).toHaveAttribute('data-unread', 'false');
     }
   });
 });

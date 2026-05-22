@@ -68,9 +68,13 @@ test.describe('Tab navigation and content', () => {
     await expect(page.getByText('YESTERDAY')).toBeVisible();
   });
 
-  test('amber banner is hidden when New Reports drawer is open', async ({ page }) => {
+  test('amber banner does not appear inside the New Reports drawer', async ({ page }) => {
     await page.getByTestId('new-reports-button').click();
-    await expect(page.getByText(/clear automatically/i)).not.toBeVisible();
+    const drawer = page.getByTestId('new-reports-drawer');
+    await expect(drawer).toBeVisible();
+    // The drawer content must never contain the action_required amber banner —
+    // that banner is contextual to the Action Required tab only.
+    await expect(drawer.getByText(/clear automatically/i)).toHaveCount(0);
   });
 
   test('amber banner is hidden on Updates tab', async ({ page }) => {

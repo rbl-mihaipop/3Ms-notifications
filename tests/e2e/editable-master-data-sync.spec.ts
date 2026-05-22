@@ -24,14 +24,16 @@ test.describe('Editable master data + synchronized notifications', () => {
 
   test('report download flow emits started, in-progress, and done updates', async ({ page }) => {
     await page.goto('/notifications');
-    await page.getByRole('tab', { name: /new reports/i }).click();
+    // After PR #9, New Reports is a right-side drawer reached via a button
+    await page.getByTestId('new-reports-button').click();
+    const drawer = page.getByTestId('new-reports-drawer');
 
-    await page.getByTestId('notification-cta').first().click();
+    await drawer.getByTestId('notification-cta').first().click();
     await page.getByRole('dialog').getByRole('button', { name: /download pdf/i }).click();
 
     await expect(page.getByText('Report generation started').first()).toBeVisible();
     await expect(page.getByText('Report generation in progress').first()).toBeVisible({ timeout: 5000 });
     await expect(page.getByText('Report ready').first()).toBeVisible({ timeout: 7000 });
-    await expect(page.getByTestId('notification-cta').first()).toContainText(/download report/i);
+    await expect(drawer.getByTestId('notification-cta').first()).toContainText(/download report/i);
   });
 });
